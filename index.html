@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDB</title>
+    <!-- Font Awesome -->
+    <link rel="shortcut icon" href="#">
+
+    <link href="assets/css/all.min.css" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" /> -->
+    <!-- MDB -->
+
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/fontawesome/pro/css/all.css">
+
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- <link href="assets/css/mdb.min.css" rel="stylesheet" /> -->
+    <!-- <link rel="stylesheet" href="assets/css/tagin.min.css"> -->
+    <link href="assets/css/tagify.css" rel="stylesheet" type="text/css" />
+    <!-- <link rel="stylesheet" href="assets/css/docs.css"> -->
+
+</head>
+
+<body>
+
+
+    <!--Main Navigation-->
+    <header>
+        <!-- Sidebar -->
+        <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-white shadow" style="overflow:auto">
+
+            <div class="accordion" id="faqlist">
+                <div class="accordion-item my-3 shadow">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-accordion-1">Tools</button>
+                    </h2>
+                    <div id="content-accordion-1" class="accordion-collapse collapse" data-bs-parent="#faqlist">
+                        <div id="parent-shape" class="container-fluid">
+                            <!-- <div class="hd"><span>Tools</span></div> -->
+                            <div class="row p-2 ">
+                                <div class="col-md-1">
+                                </div>
+                                <div id="square" draggable="true" class="col-md-5 ctn grabbing">
+                                    <a><i class="fal fa-rectangle-wide"></i></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="circle" onclick="toolbox_manager('circle')"><i class="fal fa-circle"></i></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="break_arrow" onclick="toolbox_manager('break_arrow')"><i class="bi bi-arrow-return-left"></i></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="arrow" onclick="toolbox_manager('arrow')"><i class="fal fa-long-arrow-right"></i></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="text" onclick="toolbox_manager('text')"><i class="fal fa-text"></i></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="color_palet" onclick="toolbox_manager('palet')"><i class="fal fa-fill-drip"></i></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="pen" onclick="toolbox_manager('pen')"><i class="fal fa-pen"></i></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="eraser" onclick="toolbox_manager('eraser')"><i class="fal fa-eraser"></i></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="select" onclick="toolbox_manager('select')"><i class="fal fa-mouse-pointer"></i></a>
+                                </div>
+                                <div id="select" draggable="true" class="col-md-5 ctn grabbing">
+                                    <a><i class="fal fa-draw-square"></i></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item my-3 shadow">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#content-accordion-2">Functions</button>
+                    </h2>
+                    <div id="content-accordion-2" class="accordion-collapse collapse" data-bs-parent="#faqlist">
+                        <div id="parent-shape-func" class="container-fluid">
+                            <!-- <div class="hd"><span>Functions</span></div> -->
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div id="hash" draggable="true" class="col-md-5 ctn grabbing grabbing">
+                                    <a><span>HASH</span></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing grabbing">
+                                    <a id="mac" draggable="true"><span>MAC</span></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="enc" draggable="true"><span>ENC</span></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="dec" draggable="true"><span>DEC</span></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing grabbing">
+                                    <a id="sign" draggable="true"><span>SIGN</span></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="verify" draggable="true"><span>VERIFY</span></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing grabbing">
+                                    <a id="rand" draggable="true"><span>RAND</span></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="xor" draggable="true"><span>XOR</span></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing grabbing">
+                                    <a id="concat" draggable="true"><span>CONCAT</span></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="seperator" draggable="true"><span>SEPERATE</span></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            <div class="row p-2">
+                                <div class="col-md-1">
+                                </div>
+                                <div class="col-md-5 ctn grabbing grabbing">
+                                    <a id="f" draggable="true"><span>F</span></a>
+                                </div>
+                                <div class="col-md-5 ctn grabbing">
+                                    <a id="round" draggable="true"><span>ROUND</span></a>
+                                </div>
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <button type="button" id="test" class="btn btn-primary box_sh">Submit</button> -->
+
+            </div>
+
+
+            <br />
+
+            <!-- <div class="position-sticky">
+                <div class="list-group list-group-flush mx-3 mt-4">
+                    <a href="#" class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+                        <i class="fas fa-tachometer-alt fa-fw me-3"></i><span>Main dashboard</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action py-2 ripple active">
+                        <i class="fas fa-chart-area fa-fw me-3"></i><span>Webiste traffic</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action py-2 ripple"><i
+              class="fas fa-lock fa-fw me-3"></i><span>Password</span></a>
+                </div>
+            </div> -->
+        </nav>
+        <!-- Sidebar -->
+
+        <!-- Navbar -->
+        <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm p-1 bg-body rounded">
+            <!-- Container wrapper -->
+            <div class="container-fluid">
+                <!-- Toggle button -->
+
+                <ul class="navbar-nav">
+                    <!-- Dropdown -->
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          File
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" href="#">New</a>
+                            </li>
+                            <li>
+                                <label for="file-input" id="file-input-label" class="custom-file-upload">Open</label>
+                                <input type="file" id="file-input" accept="application/json" />
+                                <!-- <label for="file-upload" id="file-input-label" class="custom-file-upload">Open -->
+                                <!-- <i class="fa fa-cloud-upload"></i> Custom Upload -->
+                                <!-- </label> -->
+                                <!-- <input id="file-upload" type="file" /> -->
+                                <!-- <a class="dropdown-item custom-file-upload" for="file-upload" href="#" id="open"><input type="file" id="file-upload" />Open</a> -->
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Close</a>
+                            </li>
+                            <hr />
+                            <li>
+                                <a class="dropdown-item" onclick="save();" href="#">Save</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" id="export-pdf" href="#">Export PDF</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                    Edit
+                  </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" href="#">New</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Open</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Close</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
+                    View
+                  </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" href="#">New</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Open</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Close</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Container wrapper -->
+        </nav>
+        <!-- Navbar -->
+    </header>
+    <!--Main Navigation-->
+
+    <!--Main layout-->
+    <main>
+        <div id="scroll-container">
+            <!-- <div id="large-container"> -->
+            <div id="container" class="pt-4"></div>
+            <!-- Modal -->
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="initalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLbl">Send Form</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form role="form">
+                                <div class="form-group">
+                                    <label for="reciver">Reciver</label>
+                                    <input type="text" name="reciver" placeholder="reciver" required class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="define">Define</label>
+                                    <input type="text" name="define" placeholder="define" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="parametrs">Parametrs</label>
+                                    <input type="text" name="parametrs" placeholder="parametrs" class="form-control" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary box_sh" data-bs-dismiss="modal">Close</button>
+                            <button type="button" id="submit_btn" class="btn btn-primary box_sh">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="initial" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="initalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">init Form</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="init-form" role="form">
+                                <!-- <div class="form-group">
+                                <label for="reciver">name</label>
+                                <input type="text" name="name" placeholder="reciver" required class="form-control">
+                            </div> -->
+                                <div class="form-group">
+                                    <label for="define">sym</label>
+                                    <input type="text" name="sym" placeholder="define" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="parametrs">Asym</label>
+                                    <input type="text" name="Asym" placeholder="parametrs" class="form-control" required>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary box_sh" data-bs-dismiss="modal">Close</button>
+                            <button type="button" id="btn_init" class="btn btn-primary box_sh">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="samp" id="options" style="display: none;">
+                <div class="btn-group-vertical" role="group " aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check " name="btnradio" id="btnradio1" autocomplete="off" data-bs-toggle="modal" data-bs-target="#initial">
+                    <label class="btn btn-outline-secondary none_border-1" for="btnradio1"><i class="far fa-key"></i></label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <label class="btn btn-outline-primary none_border-1" for="btnradio2"><i class="far fa-edit"></i></label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
+                    <label class="btn btn-outline-danger none_border-1" for="btnradio3"><i class="far fa-trash-alt"></i></label>
+                </div>
+            </div>
+            <!-- </div> -->
+        </div>
+    </main>
+
+
+
+
+
+
+
+
+    <!--Main layout-->
+    <!-- <div id="menu">
+        <ul>
+            <li id="copy-button">
+                <button>Copy</button>
+            </li>
+            <li id="cut-button">
+                <button>Cut</button>
+            </li>
+            <li id="paste-button">
+                <button type="button" disabled>Paste</button>
+            </li>
+            <li id="delete-button">
+                <button>Remove</button>
+            </li>
+
+            <button id=" pulse-button ">Copy</button>
+            <button id="pulse-button ">Cut</button>
+            <button id="delete-button ">Delete</button>
+        </ul>
+    </div> -->
+    <!-- <div class="container content-back">lmklmlmlmllmlmlm</div> -->
+    <!-- MDB -->
+    <script src="assets/js/jquery.min.js"></script>
+    <!-- <script src="assets/js/mdb.min.js"></script> -->
+    <script src="assets/js/jquery-ui.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/konva.min.js"></script>
+    <script src="assets/js/shape.js"></script>
+    <script src="assets/js/funcs.js"></script>
+    <script src="assets/js/FileSaver.js"></script>
+    <script src="assets/js/html2canvas.min.js"></script>
+    <script src="assets/js/jspdf.debug.js"></script>
+    <script src="assets/js/tag/tagify.min.js"></script>
+    <script src="assets/js/tag/jQuery.tagify.min.js"></script>
+    <!-- <script src="assets/js/tag/taginput.js"></script> -->
+    <!-- <script src="assets/js/tag/tagin.js"></script> -->
+    <!-- <script src="assets/js/sweetalert.min.js"></script> -->
+    <script src="assets/js/sweetalert2.js"></script>
+    <script>
+        for (const el of document.querySelectorAll('.tagin')) {
+            tagin(el)
+        }
+    </script>
+
+
+</body>
+
+</html>

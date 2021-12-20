@@ -1,0 +1,18 @@
+body {
+    font: 13px arial;
+}
+
+
+/* method 1 */
+
+.tagify__tag+.tagify__input::before {
+    opacity: 0;
+}
+
+
+/* method 2 */
+
+.tagify:not(.tagify--noTags) {
+    --placeholder-color: transparent;
+    --placeholder-color-focus: transparent;
+}

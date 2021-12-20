@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tagify - Hide placeholder if tags exist</title>
+    <meta name="description" content="Tagify">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="author" content="Yair Even Or">
+
+
+    <link href="tagify.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        .tagify+input {
+            display: block !important;
+            position: static !important;
+            transform: none !important;
+            width: 100%;
+            margin-top: 1em;
+            padding: .5em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <input style="display:none !important" name='tags-jquery' value='try, adding, a tag'>
+    <button class='tags-jquery--removeAllBtn' type='button'>Remove all tags</button>
+
+
+    <script src="jquery.min.js"></script>
+    <script src="tagify.min.js"></script>
+    <script src="jQuery.tagify.min.js"></script>
+    <script src="taginput.js"></script>
+</body>
+
+</html>
