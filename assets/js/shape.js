@@ -285,7 +285,7 @@ function create_rect(x, y, layer, stage, currentGroupName) {
         group.getChildren((node) => {
             if (node.getClassName() === 'Text') {
                 // get name of shape
-                swal("Please Enter Name", {
+                swal("Enter Name", {
                     content: {
                         element: "input",
                         attributes: {
@@ -508,27 +508,6 @@ function init_partner(group) {
 
 
 
-
-    // opt.addEventListener('click', () => {
-    //     opt.style.display = 'none';
-    // })
-
-
-    opt.style.display = 'initial';
-    opt.style.top =
-        group.getAbsolutePosition().y + 80 + 'px';
-    opt.style.left =
-        group.getAbsolutePosition().x + 360 + 'px';
-    opt.addEventListener('click', () => {
-        opt.style.display = 'none';
-        // send_form.style.display = 'initial';
-        // var containerRect = stage.container().getBoundingClientRect();
-        // send_form.style.top =
-        //     containerRect.top + stage.getPointerPosition().y + 10 + 'px';
-        // send_form.style.left =
-        //     containerRect.left + stage.getPointerPosition().x + 20 + 'px';
-
-    })
 
 
 
@@ -1167,6 +1146,29 @@ var j = 1;
 var x = 50
 var y = 10;
 var tex = 200;
+var blockSnapSize = 30;
+
+// var gridLayer = new Konva.Layer();
+// var padding = blockSnapSize;
+// console.log(width, padding, width / padding);
+// for (var i = 0; i < width / padding; i++) {
+//     gridLayer.add(new Konva.Line({
+//         points: [Math.round(i * padding) + 0.5, 0, Math.round(i * padding) + 0.5, height],
+//         stroke: '#ddd',
+//         strokeWidth: 1,
+//     }));
+// }
+
+// gridLayer.add(new Konva.Line({ points: [0, 0, 10, 10] }));
+// for (var j = 0; j < height / padding; j++) {
+//     gridLayer.add(new Konva.Line({
+//         points: [0, Math.round(j * padding), width, Math.round(j * padding)],
+//         stroke: '#ddd',
+//         strokeWidth: 0.5,
+//     }));
+// }
+
+// stage.add(gridLayer);
 
 stage.add(layer)
 
@@ -1760,12 +1762,12 @@ container.addEventListener('drop', (e) => {
             id: "rect" + count,
         });
 
-        group.add(line, rec, labelName)
-        labelName.absolutePosition({
-            x: pos.x + 40 - (measure_text.width / 2),
-            y: pos.y + 20 - (measure_text.height / 2),
+        group.add(line, rec)
+            // labelName.absolutePosition({
+            //     x: pos.x + 40 - (measure_text.width / 2),
+            //     y: pos.y + 20 - (measure_text.height / 2),
 
-        })
+        // })
         rec.on('mouseover', () => {
             stage.container().style.cursor = 'pointer';
         })
@@ -1795,15 +1797,65 @@ container.addEventListener('drop', (e) => {
 
         layer.add(group)
 
+        var resize_arrow = new Konva.Transformer({
+            ignoreStroke: true,
+            borderDash: [3, 3],
+            centeredScaling: true,
+            rotationSnaps: [0, 90, 180, 270],
+            padding: 5,
+        })
+        layer.add(resize_arrow);
         var get_from_pos
         var get_to_pos
         var points_diff
         var arr_dif
         var simpleLabel
+        var obj_group = {}
+
 
 
         group.on('click', (e) => {
+            // console.log(e.target)
+            var containerRect = stage.container().getBoundingClientRect();
+            opt.style.display = 'initial';
 
+            if (!NotEmpty(obj_group)) {
+                opt.style.top =
+                    e.target.getClientRect().y + 75 + 'px';
+                // group.getAbsolutePosition().y + 80 + 'px';
+                opt.style.left =
+                    e.target.getClientRect().x + 370 + 'px';
+                // group.getAbsolutePosition().x + 360 + 'px';
+                opt.addEventListener('click', () => {
+                    opt.style.display = 'none';
+                    // send_form.style.display = 'initial';
+                    // var containerRect = stage.container().getBoundingClientRect();
+                    // send_form.style.top =
+                    //     containerRect.top + stage.getPointerPosition().y + 10 + 'px';
+                    // send_form.style.left =
+                    //     containerRect.left + stage.getPointerPosition().x + 20 + 'px';
+
+                })
+            } else {
+
+                opt.style.display = 'initial';
+                opt.style.top =
+                    obj_group.y + 75 + 'px';
+                // group.getAbsolutePosition().y + 80 + 'px';
+                opt.style.left =
+                    obj_group.x + 370 + 'px';
+                // group.getAbsolutePosition().x + 360 + 'px';
+                opt.addEventListener('click', () => {
+                    opt.style.display = 'none';
+                    // send_form.style.display = 'initial';
+                    // var containerRect = stage.container().getBoundingClientRect();
+                    // send_form.style.top =
+                    //     containerRect.top + stage.getPointerPosition().y + 10 + 'px';
+                    // send_form.style.left =
+                    //     containerRect.left + stage.getPointerPosition().x + 20 + 'px';
+
+                })
+            }
             // console.log(e.target)
 
             // delete_shape.addEventListener('click', () => {
@@ -1874,11 +1926,15 @@ container.addEventListener('drop', (e) => {
 
             // })
 
-            currentGroupName.name = group.name()
-            currentGroupName.getX = group.getX()
-            currentGroupName.getY = group.getY()
+            currentGroupName.name = e.target.parent.attrs.name
+            currentGroupName.getX = e.target.parent.attrs.x
+            currentGroupName.getY = e.target.parent.attrs.y
+
+            // currentGroupName.name = group.name()
+            // currentGroupName.getX = group.getX()
+            // currentGroupName.getY = group.getY()
             currentGroupName.bar = group.children[0].attrs
-            group.draggable(true)
+                // group.draggable(true)
             var container = stage.container();
             // make it focusable
             container.tabIndex = 1;
@@ -1935,27 +1991,27 @@ container.addEventListener('drop', (e) => {
             init_partner(group)
         })
 
-
-
         group.on('dragmove', (e) => {
-            // console.log(rect_list[0].attrs)
-            rect_list.forEach((f) => {
-                console.log(f.attrs.name)
-                console.log(group.name())
-                if (f.atrrs.name === group.name()) {
-                    f.attrs.x = group.getX()
-                    f.attrs.y = group.getY()
-                        //     console.log(f)
-                }
+            // console.log("object")
+            // rect_list.forEach((f) => {
+            //     console.log(f)
+            //         // console.log(group.name())
+            //         // if (f.atrrs.name === group.name()) {
+            //         //     f.attrs.x = group.getX()
+            //         //     f.attrs.y = group.getY()
+            //         // }
+            // })
+            obj_group.x = e.target.getClientRect().x
+            obj_group.y = e.target.getClientRect().y
+            opt.style.display = 'initial';
+            opt.style.top =
+                obj_group.y + 75 + 'px';
+            opt.style.left =
+                obj_group.x + 370 + 'px';
+            opt.addEventListener('click', () => {
+                opt.style.display = 'none';
+
             })
-
-            // arr_dif.setPoints([get_from_pos.position.x + 51, get_from_pos.position.y + get_last_position_arrow - 70, get_to_pos.position.x + 51, get_from_pos.position.y + get_last_position_arrow - 70]);
-            // simpleLabel.position({
-            //     x: points_diff,
-            //     y: get_from_pos.position.y + get_last_position_arrow - 85,
-
-            // });
-            // layer.draw();
         })
 
         function onlyUnique(value, index, self) {
@@ -1973,7 +2029,7 @@ container.addEventListener('drop', (e) => {
 
             // if (node.getClassName() === 'Text') {
             Swal.fire({
-                title: 'Please Enter Name',
+                title: 'Enter Name',
                 input: 'text',
                 inputAttributes: {
                     autocapitalize: 'off'
@@ -1987,6 +2043,12 @@ container.addEventListener('drop', (e) => {
 
                         if (rect_list.length === 0) {
                             rect_list.push(group)
+                            group.add(labelName)
+                            labelName.absolutePosition({
+                                x: pos.x + 40 - (measure_text.width / 2),
+                                y: pos.y + 20 - (measure_text.height / 2),
+
+                            })
                         }
                         console.log(rect_list)
                         if (rect_list.length !== 0) {
@@ -2015,6 +2077,12 @@ container.addEventListener('drop', (e) => {
                             // node.text(value)
                             if (st == false) {
                                 rect_list.push(group)
+                                group.add(labelName)
+                                labelName.absolutePosition({
+                                    x: pos.x + 40 - (measure_text.width / 2),
+                                    y: pos.y + 20 - (measure_text.height / 2),
+
+                                })
                                 labelName.text(value)
 
                                 // console.log(rect_list)
@@ -2034,22 +2102,7 @@ container.addEventListener('drop', (e) => {
         })
 
         stage.add(layer)
-        stage.on('click', (e) => {
-            e.evt.preventDefault();
-            if (e.target === stage) {
-                resize_gr.nodes([]);
-                group.draggable(false)
-                btn_draw_shape.style.display = 'none'
-                opt.style.display = 'none'
-                return;
-            }
-            // console.log(e.target.parent.attrs.x)
 
-            target = e.target.parent
-            tr_target = resize_gr
-
-            resize_gr.nodes([e.target.parent]);
-        })
 
         // create_note(group)
 
@@ -2142,11 +2195,24 @@ container.addEventListener('drop', (e) => {
                 distance_partner = connect_node.to.getX - connect_node.from.getX + 50
             }
 
-            var firstItem = connect_node.from.getY + 70
+
+            function dist_y() {
+                let d
+                if (arrow_list.length === 0) {
+                    d = connect_node.from.getY + 30
+                } else {
+                    d = arrow_list.slice(-1)[0].arrow.attrs.y + 50
+                }
+                return d
+            }
+            // console.log(connect_node.from.bar.getAbsolutePosition())
+            var firstItem = connect_node.from.getY + 20
             arrow_distance = new Konva.Arrow({
                 x: connect_node.from.getX,
-                y: arrow_list.length === 0 ? firstItem : arrow_list.slice(-1)[0].arrow.attrs.y + 70,
+                y: dist_y(),
+                // y: arrow_list.length === 0 ? firstItem : arrow_list.slice(-1)[0].arrow.attrs.y + 50,
                 points: [connect_node.from.bar.points[0], connect_node.from.getY, distance_partner, connect_node.from.getY],
+                // points: [connect_node.from.bar.points[0], connect_node.from.bar.points[1], connect_node.to.bar.points[2], connect_node.to.bar.points[3]],
                 pointerLength: 10,
                 pointerWidth: 10,
                 fill: 'black',
@@ -2155,9 +2221,9 @@ container.addEventListener('drop', (e) => {
                 draggable: true,
                 id: "arrow_" + arrow_count
             });
-
             layer.add(arrow_distance)
-
+                // layer.add(group_arrow)
+                // resize_arrow.nodes([arrow_distance])
             var arrr = {}
             var dict_params = []
             var p = []
@@ -2165,37 +2231,39 @@ container.addEventListener('drop', (e) => {
             var handle_text_note = jQuery.parseJSON(input_params.val())
             if (params_arr.length === 0) {
                 for (var i = 0; i < length_params; i++) {
-                    p.push("P_" + i)
-                    params_arr.push("P_" + i)
+                    p.push("P" + i)
+                    params_arr.push("P" + i)
                 }
             } else {
                 for (var i = 0; i < length_params; i++) {
-                    p.push("P_" + params_arr.length)
-                    params_arr.push("P_" + params_arr.length)
+                    p.push("P" + params_arr.length)
+                    params_arr.push("P" + params_arr.length)
                 }
             }
-
-
-
-            var j = 0
 
             if (params_arr.length === 0) {
                 for (var i = 0; i < p.length; i++) {
                     arrr[p[i]] = handle_text_note[i].value
-
-                    // arrr.push("P_" + i + "=" + handle_text_note[i].value)
                 }
             } else {
                 for (var i = 0; i < p.length; i++) {
                     arrr[p[i]] = handle_text_note[i].value
-                        // arrr.push("P_" + params_arr.length + "=" + handle_text_note[i].value)
-                        // params_arr.push("P_" + params_arr.length)
                 }
             }
             for (const prop in arrr) {
-                dict_params.push(`${prop}: ${arrr[prop]}`)
+                dict_params.push(`${prop} = ${arrr[prop]}`)
             }
-            console.log("=====> ", dict_params)
+
+
+            // arrow_distance.on('click', (ar) => {
+            //     console.log(ar)
+            //         // var tr = arrow_distance.getTransform();
+            //         // resize_arrow.nodes([arrow_distance]);
+            //         // console.log(tr)
+            // })
+
+            // console.log("arrrrrrrrrrrrrow ===> ", arrow_distance)
+
             arrow_distance.on("contextmenu", (e) => {
                 e.evt.preventDefault()
 
@@ -2245,53 +2313,68 @@ container.addEventListener('drop', (e) => {
 
 
                 li_delete.addEventListener('click', () => {
-                    e.target.destroy()
-                    note_group.destroy()
-                    arrow_list.filter((fil) => {
-                        if (fil.arrow.attrs.id === e.target.attrs.id) {
-                            const index = arrow_list.indexOf(fil)
-                            arrow_list.splice(index, 1)
-                                // var a = arrow_list.slice(index, arrow_list.length)
-                                // a.forEach((ar) => {
-                                //     ar.arrow.attrs.y - 70
-                                //     arrow_list.push(a)
-                                // })
-                        }
-                    })
+                    if (e.target.getClassName() === "Arrow") {
+                        e.target.destroy()
+                            // note_group.destroy()
+                            // arrow_list.filter((fil) => {
+                            //     if (fil.arrow.attrs.id === e.target.attrs.id) {
+                            //         const index = arrow_list.indexOf(fil)
+                            //         arrow_list.splice(index, 1)
+                            //             // var a = arrow_list.slice(index, arrow_list.length)
+                            //             // a.forEach((ar) => {
+                            //             //     ar.arrow.attrs.y - 70
+                            //             //     arrow_list.push(a)
+                            //             // })
+                            //     }
+                            // })
+                    }
                 })
 
-                if (e.target === stage) {
-                    return;
-                } else {
-                    _ul.style.display = 'initial';
-                    var containerRect = stage.container().getBoundingClientRect();
-                    _ul.style.top =
-                        containerRect.top + stage.getPointerPosition().y + 4 + 'px';
-                    _ul.style.left =
-                        containerRect.left + stage.getPointerPosition().x + 4 + 'px';
-                }
+                // if (e.target === stage) {
+                //     return;
+                // } else {
+                //     _ul.style.display = 'initial';
+                //     var containerRect = stage.container().getBoundingClientRect();
+                //     _ul.style.top =
+                //         containerRect.top + stage.getPointerPosition().y + 4 + 'px';
+                //     _ul.style.left =
+                //         containerRect.left + stage.getPointerPosition().x + 4 + 'px';
+                // }
 
 
 
-                window.addEventListener('click', () => {
-                    _ul.style.display = 'none'
-                })
+                // window.addEventListener('click', () => {
+                //     _ul.style.display = 'none'
+                // })
 
             })
 
             connect_node.arrow = arrow_distance
 
+            var simpleText = new Konva.Text({
+                x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x + 100 : connect_node.arrow.attrs.x - 20,
+                // y: connect_node.from.bar.points[0],
+                y: arrow_list.length === 0 ? connect_node.from.getY + 70 : arrow_list.slice(-1)[0].arrow.attrs.y + 40,
+                text: p,
+                fontSize: 20,
+                fontFamily: 'Calibri',
+                fill: 'green',
+            });
+
             var textpath = new Konva.TextPath({
-                x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x + 200 : connect_node.arrow.attrs.x - 200,
-                y: arrow_distance.attrs.y + 30,
+                x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x + 240 : connect_node.arrow.attrs.x - 230,
+                y: connect_node.from.getY,
                 fill: '#333',
                 fontSize: 16,
                 fontFamily: 'Arial',
                 text: p,
+                stroke: "green",
                 data: 'M 10 10 L 300 10',
             });
 
-            layer.add(textpath);
+            // group_arrow.add(arrow_distance, textpath)
+
+            layer.add(simpleText);
 
             note_group = new Konva.Group({
                 // x: containerRect.top + stage.getPointerPosition().y + 10,
@@ -2304,35 +2387,6 @@ container.addEventListener('drop', (e) => {
             });
 
 
-
-            console.log(handle_text_note)
-
-
-
-            // var errr = []
-            // var j = 0
-
-            // if (params_arr.length === 0) {
-            //     for (var i = 0; i < handle_text_note.length; i++) {
-            //         errr.push("P_" + i + "=" + handle_text_note[i].value)
-            //             // params_arr.push("P_" + i)
-            //     }
-            // } else {
-            //     for (var i = 0; i < handle_text_note.length; i++) {
-            //         errr.push("P_" + params_arr.length + "=" + handle_text_note[i].value)
-            //             // params_arr.push("P_" + params_arr.length)
-            //     }
-            // }
-            // for (var i = 0; i < handle_text_note.length; i++) {
-            //     errr.push("P_" + i + " = " + handle_text_note[i])
-            //         // for (j = 0; j < p.length; j++) {
-            //         //     j++
-            //         //     break;
-
-            //     //     // continue;
-            //     // }
-            //     // console.log(p[j] + "=" + handle_text_note[i].value + "\n")
-            // }
             let text_note = new Konva.Text({
                 text: "definitions: " + obj_partner.define + "\n" + dict_params.toString(),
                 fontSize: 18,
@@ -2350,7 +2404,7 @@ container.addEventListener('drop', (e) => {
                 fill: '#fdfd80',
                 shadowOpacity: 0.4,
                 shadowBlur: 2,
-                cornerRadius: [0, 0, 10, 0],
+                cornerRadius: [0, 0, 0, 0],
                 shadowColor: 'black',
                 shadowOffset: {
                     x: 1,
@@ -2366,10 +2420,11 @@ container.addEventListener('drop', (e) => {
 
             note_group.add(text_note);
             // text_note.text("definitions: " + define + "\n" + "parameters: " + params)
-
+            let cumputing_x = Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.from.getX - 110 : connect_node.from.getX + 60
             note_group.absolutePosition({
-                x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x - 110 : connect_node.arrow.attrs.x + 60,
-                y: connect_node.arrow.attrs.y
+                // x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x - 110 : connect_node.arrow.attrs.x + 60,
+                x: cumputing_x,
+                y: connect_node.arrow.attrs.y + 10
             })
             layer.add(note_group)
             connect_node.note = note_group
@@ -2496,8 +2551,64 @@ container.addEventListener('drop', (e) => {
         // connect_node.to = rect_list.filter(el => el.attrs.name === obj_partner.reciver)
 
 
+        stage.on('click', (e) => {
+            e.evt.preventDefault();
+            if (e.target === stage) {
+                resize_gr.nodes([]);
+                resize_arrow.nodes([]);
+                group.draggable(false)
+                btn_draw_shape.style.display = 'none'
+                opt.style.display = 'none'
+                return;
+            }
+            // console.log(e.target.parent.attrs.x)
 
+            target = e.target.parent
+            tr_target = resize_gr
 
+            if (e.target.getClassName("rect")) {
+                // console.log("object is rect")
+                resize_gr.nodes([e.target.parent]);
+            }
+            // else if (e.target.getClassName("arrow")) {
+            //     resize_arrow.nodes([e.target]);
+            // }
+            // resize_arrow.nodes([arrow_distance]);
+        })
+
+        var scaleBy = 1.01;
+        stage.on('wheel', (e) => {
+            // stop default scrolling
+            e.evt.preventDefault();
+
+            console.log("object is rect")
+            var oldScale = stage.scaleX();
+            var pointer = stage.getPointerPosition();
+
+            var mousePointTo = {
+                x: (pointer.x - stage.x()) / oldScale,
+                y: (pointer.y - stage.y()) / oldScale,
+            };
+
+            // how to scale? Zoom in? Or zoom out?
+            let direction = e.evt.deltaY > 0 ? 1 : -1;
+
+            // when we zoom on trackpad, e.evt.ctrlKey is true
+            // in that case lets revert direction
+            if (e.evt.ctrlKey) {
+                direction = -direction;
+            }
+
+            var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+            stage.scale({ x: newScale, y: newScale });
+
+            var newPos = {
+                x: pointer.x - mousePointTo.x * newScale,
+                y: pointer.y - mousePointTo.y * newScale,
+            };
+            stage.position(newPos);
+        });
 
 
 
@@ -2541,6 +2652,9 @@ container.addEventListener('drop', (e) => {
     // frm.reset()
     // })
 })
+
+
+
 
 delete_shape.addEventListener('click', () => {
 
