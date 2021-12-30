@@ -3,7 +3,7 @@ var height = document.getElementById('container').offsetHeight;
 
 var stage = new Konva.Stage({
     container: "container",
-    width: width,
+    width: 3000,
     height: height
 });
 var layer = new Konva.Layer();
@@ -3059,8 +3059,9 @@ class FuncTool {
     }
 
 
-    saveStaticDataToFile() {
-        var blob = new Blob([stage.toJSON()], {
+    saveStaticDataToFile(node) {
+        var a = node.toJSON()
+        var blob = new Blob([a], {
             type: "text/plain;charset=utf-8"
         });
         saveAs(blob, "sample.json");
@@ -3068,7 +3069,9 @@ class FuncTool {
 
     import_f(file) {
 
-        var s = Konva.Node.create(file, 'container');
+
+
+        var s = Konva.Node.create(JSON.stringify(file), 'container');
         // s.draggable(true)
         var tr = new Konva.Transformer({
             borderDash: [3, 3],
@@ -3083,11 +3086,119 @@ class FuncTool {
         // this.atach_resize(s, tr, stage)
     }
 
+
+
 }
 
-function save() {
-    var s = new FuncTool()
-    s.saveStaticDataToFile()
+// var array_json = []
+// btn_save = document.getElementById('save');
+// btn_save.addEventListener('click', (e) => {
+//     console.log(shape_list.toJSON())
+//         // shape_list.forEach(sh => {
+//         //         console.log(sh)
+//         //             // array_json.push(sh.toJSON())
+//         //     })
+//         // var blob = new Blob(array_json, {
+//         //     type: "text/plain;charset=utf-8"
+//         // });
+//         // saveAs(blob, "sample.json");
+//         // var s = new FuncTool()
+//         // s.saveStaticDataToFile(shape_list)
+//         // this.saveStaticDataToFile(stage)
+// })
+
+// function save() {
+//     var s = new FuncTool()
+//     s.saveStaticDataToFile()
+// }
+
+function create(data, stg) {
+    var state = [data];
+    state.forEach((i) => {
+            if (i.className == 'Layer') {
+                var layer = new Konva.Layer({...i });
+
+            }
+            i.children.forEach((j) => {
+                switch (j.className) {
+                    case "Group":
+                        var group = new Konva.Group({
+                            draggable: true,
+                            name: j.attrs.name,
+                            x: j.attrs.x,
+                            y: j.attrs.y,
+                        });
+                        layer.add(group);
+                        group.on('click', (e) => {
+                            console.log(group.name())
+                                // tr.nodes([group])
+                        })
+                        j.children.forEach((ch) => {
+                            switch (ch.className) {
+                                case "Line":
+                                    var line = new Konva.Line({...ch });
+                                    group.add(line);
+                                    break;
+                                case "Rect":
+                                    var rect = new Konva.Rect({...ch });
+                                    group.add(rect);
+                                    break;
+                                case "Text":
+                                    var text = new Konva.Text({...ch });
+                                    group.add(text);
+                                    break;
+                            }
+                        })
+                        break;
+                    case "Text":
+                        var text = new Konva.Text({...j });
+                        layer.add(text);
+                        break;
+
+                    case "Arrow":
+                        var arrow = new Konva.Arrow({...j });
+                        layer.add(arrow);
+                        break;
+                    case "Transformer":
+                        var tr = new Konva.Transformer({...j });
+
+                        layer.add(tr);
+                        // tr.attachTo(group)
+
+                        break;
+                }
+            })
+            stg.add(layer);
+        })
+        // state.forEach((item, index) => {
+        //     console.log(item)
+        //     var group = new Konva.Group({
+        //         draggable: true,
+        //         name: item.attrs.name,
+        //     });
+        //     layer.add(group);
+
+    //     item.children.forEach((ch => {
+    //         switch (ch.className) {
+    //             case "Line":
+    //                 var line = new Konva.Line({...ch });
+    //                 group.add(line);
+    //                 break;
+    //             case "Rect":
+    //                 var rect = new Konva.Rect({...ch });
+    //                 group.add(rect);
+    //                 break;
+    //             case "Text":
+    //                 var text = new Konva.Text({...ch });
+    //                 group.add(text);
+    //                 break;
+    //                 // case "Text":
+    //                 //     var text = new Konva.Text({...ch });
+    //                 //     group.add(text);
+    //                 //     break;
+    //         }
+    //     }))
+    // });
 }
 
 function import_file() {
@@ -3124,8 +3235,11 @@ function import_file() {
         // file reading finished successfully
         reader.addEventListener('load', function(e) {
             var text = e.target.result;
-            load_file.import_f(text)
-            console.log(JSON.stringify(text))
+            console.log(text)
+            create(JSON.parse(text), stage)
+                // load_file.import_f(text)
+
+            // console.log(text)
             if (text == "") {
                 alert('Error :File Is Empty!')
             }

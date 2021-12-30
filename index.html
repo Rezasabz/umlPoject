@@ -243,7 +243,7 @@
                             </li>
                             <hr />
                             <li>
-                                <a class="dropdown-item" onclick="save();" href="#">Save</a>
+                                <a class="dropdown-item" id="save" href="#">Save</a>
                             </li>
                             <li>
                                 <a class="dropdown-item" id="export-pdf" href="#">Export PDF</a>
@@ -297,6 +297,7 @@
                         </ul>
                     </li>
                 </ul>
+                <button type="button" id="btn_run" class="btn btn-primary">Run</button>
             </div>
 
             <!-- Container wrapper -->
@@ -310,6 +311,7 @@
         <div id="scroll-container">
             <!-- <div id="large-container"> -->
             <div id="container" class="pt-4"></div>
+
             <!-- Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="initalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -319,24 +321,36 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form role="form">
+                            <form role="form " class="needs-validation" novalidate>
                                 <div class="form-group">
                                     <label for="reciver">Reciver</label>
                                     <input type="text" name="reciver" placeholder="reciver" required class="form-control">
+                                    <div id="invalid-empty-rec" class="invalid-feedback">
+
+                                    </div>
+                                    <div id=invalid-rec class="invalid-feedback">
+                                        There is no partner with this name !
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="define">Define</label>
                                     <input type="text" name="define" placeholder="define" class="form-control" required>
+                                    <div id="invalid-empty-def" class="invalid-feedback">
+                                        Invalid value !
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="parametrs">Parametrs</label>
                                     <input type="text" name="parametrs" placeholder="parametrs" class="form-control" required>
+                                    <div id="invalid-empty-params" class="invalid-feedback">
+                                        Invalid value !
+                                    </div>
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary box_sh" data-bs-dismiss="modal">Close</button>
-                            <button type="button" id="submit_btn" class="btn btn-primary box_sh">Submit</button>
+                            <button type="submit" id="submit_btn" class="btn btn-primary box_sh">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -388,37 +402,50 @@
             </div>
             <!-- </div> -->
         </div>
+        <!-- Large button groups (default and split) -->
+
+        <div class="accordion m-left" id="faqlist">
+            <div class="accordion-item my-3">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#content-console">Output</button>
+                </h2>
+                <div id="content-console" class="accordion-collapse collapse" data-bs-parent="#faqlist">
+                    <div class="accordion-body">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab-1" data-bs-toggle="tab" href="#Tab1">Tab 1</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-2" data-bs-toggle="tab" href="#Tab2">Tab 2</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-3" data-bs-toggle="tab" href="#Tab3">Tab 3</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="Tab1">
+                                <div class="console">
+                                    <textarea class="form-control" id="console" rows="5" readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="Tab2">
+                                <div class="console">
+                                    <textarea class="form-control" id="console" rows="5" readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="Tab3">
+                                <div class="console">
+                                    <textarea class="form-control" id="console" rows="5" readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
 
-
-
-
-
-
-
-    <!--Main layout-->
-    <!-- <div id="menu">
-        <ul>
-            <li id="copy-button">
-                <button>Copy</button>
-            </li>
-            <li id="cut-button">
-                <button>Cut</button>
-            </li>
-            <li id="paste-button">
-                <button type="button" disabled>Paste</button>
-            </li>
-            <li id="delete-button">
-                <button>Remove</button>
-            </li>
-
-            <button id=" pulse-button ">Copy</button>
-            <button id="pulse-button ">Cut</button>
-            <button id="delete-button ">Delete</button>
-        </ul>
-    </div> -->
-    <!-- <div class="container content-back">lmklmlmlmllmlmlm</div> -->
     <!-- MDB -->
     <script src="assets/js/jquery.min.js"></script>
     <!-- <script src="assets/js/mdb.min.js"></script> -->
@@ -430,7 +457,7 @@
     <script src="assets/js/FileSaver.js"></script>
     <script src="assets/js/html2canvas.min.js"></script>
     <script src="assets/js/jspdf.debug.js"></script>
-    <script src="assets/js/tag/tagify.min.js"></script>
+    <!-- <script src="assets/js/tag/tagify.min.js"></script> -->
     <script src="assets/js/tag/jQuery.tagify.min.js"></script>
     <!-- <script src="assets/js/tag/taginput.js"></script> -->
     <!-- <script src="assets/js/tag/tagin.js"></script> -->

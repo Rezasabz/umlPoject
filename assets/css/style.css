@@ -257,7 +257,7 @@ input[type="file"] {
 
 #container {
     width: 3000px;
-    height: 3000px;
+    height: 483px;
     overflow: hidden;
     background-color: #fdfdfd;
     background-image: radial-gradient(circle, #ddd 1px, rgba(0, 0, 0, 0) 1px);
@@ -266,9 +266,21 @@ input[type="file"] {
 
 #scroll-container {
     width: calc(100% - 22px);
-    height: calc(95vh - 22px);
+    /* height: calc(95vh - 22px); */
     overflow: auto;
     margin-top: 50px;
     margin-left: 20px;
     /* border: 1px solid grey; */
+}
+
+.m-left {
+    margin-left: 22px !important;
+}
+
+.p-tab {
+    padding: 6px !important;
+}
+
+.nav-tabs {
+    border-bottom: none !important;
 }
