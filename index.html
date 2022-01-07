@@ -48,8 +48,8 @@
                                 <div id="square" draggable="true" class="col-md-5 ctn grabbing">
                                     <a><i class="fal fa-rectangle-wide"></i></a>
                                 </div>
-                                <div class="col-md-5 ctn grabbing">
-                                    <a id="circle" onclick="toolbox_manager('circle')"><i class="fal fa-circle"></i></a>
+                                <div id="circle" draggable="true" class="col-md-5 ctn grabbing">
+                                    <a><i class="fal fa-circle"></i></a>
                                 </div>
                                 <div class="col-md-1">
                                 </div>
@@ -334,23 +334,57 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="define">Define</label>
-                                    <input type="text" name="define" placeholder="define" class="form-control" required>
-                                    <div id="invalid-empty-def" class="invalid-feedback">
+                                    <input type="text" name="define" placeholder="define" clasa="form-control">
+                                    <!-- <div id="invalid-empty-def" class="invalid-feedback">
                                         Invalid value !
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <div class="form-group">
                                     <label for="parametrs">Parametrs</label>
-                                    <input type="text" name="parametrs" placeholder="parametrs" class="form-control" required>
-                                    <div id="invalid-empty-params" class="invalid-feedback">
+                                    <input type="text" name="params" placeholder="parametrs" class="form-control">
+                                    <!-- <div id="invalid-empty-params" class="invalid-feedback">
                                         Invalid value !
-                                    </div>
+                                    </div> -->
                                 </div>
                             </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary box_sh" data-bs-dismiss="modal">Close</button>
                             <button type="submit" id="submit_btn" class="btn btn-primary box_sh">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Note -->
+            <div class="modal fade" id="note_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="initalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="header_note">Edit Note</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="parametrs">Define</label>
+                                    <input type="text" name="define_note" placeholder="define" class="form-control">
+                                    <!-- <div id="invalid-empty-params" class="invalid-feedback">
+                                                    Invalid value !
+                                                </div> -->
+                                </div>
+                                <div class="form-group">
+                                    <label for="parametrs">Parametrs</label>
+                                    <input type="text" name="parametrs_note" placeholder="parametrs" class="form-control">
+                                    <!-- <div id="invalid-empty-params" class="invalid-feedback">
+                                                    Invalid value !
+                                                </div> -->
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary box_sh" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" id="submit_btn_note" class="btn btn-primary box_sh">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -365,10 +399,10 @@
                         </div>
                         <div class="modal-body">
                             <form id="init-form" role="form">
-                                <!-- <div class="form-group">
-                                <label for="reciver">name</label>
-                                <input type="text" name="name" placeholder="reciver" required class="form-control">
-                            </div> -->
+                                <div class="form-group">
+                                    <label for="reciver">name</label>
+                                    <input type="text" name="name" placeholder="name" required class="form-control">
+                                </div>
                                 <div class="form-group">
                                     <label for="define">sym</label>
                                     <input type="text" name="sym" placeholder="define" class="form-control" required>
@@ -393,11 +427,22 @@
                     <input type="radio" class="btn-check " name="btnradio" id="btnradio1" autocomplete="off" data-bs-toggle="modal" data-bs-target="#initial">
                     <label class="btn btn-outline-secondary none_border-1" for="btnradio1" data-toggle="tooltip" data-placement="top" title="Keys"><i class="far fa-key"></i></label>
 
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    <label class="btn btn-outline-primary none_border-1" for="btnradio2" data-toggle="tooltip" data-placement="top" title="Attribute"><i class="far fa-edit"></i></label>
+                    <input type="radio" class="btn-check" name="btnradio" id="edit_btn" autocomplete="off" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <label class="btn btn-outline-primary none_border-1" for="edit_btn" data-toggle="tooltip" data-placement="top" title="Send Message"><i class="far fa-edit"></i></label>
 
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">
-                    <label class="btn btn-outline-danger none_border-1" for="btnradio3" data-toggle="tooltip" data-placement="top" title="Delete"><i class="far fa-trash-alt"></i></label>
+                    <input type="radio" class="btn-check" name="btnradio" id="btn_delete" autocomplete="off">
+                    <label class="btn btn-outline-danger none_border-1" for="btn_delete" data-toggle="tooltip" data-placement="top" title="Delete"><i class="far fa-trash-alt"></i></label>
+                </div>
+            </div>
+
+            <!-- Option Note -->
+            <div class="samp" id="options_note" style="display: none;">
+                <div class="btn-group-vertical" role="group " aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btn_note1" autocomplete="off" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <label class="btn btn-outline-primary none_border-1" for="btn_note1" data-toggle="tooltip" data-placement="top" title="Edit"><i class="far fa-edit"></i></label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="btn_delete_note" autocomplete="off">
+                    <label class="btn btn-outline-danger none_border-1" for="btn_delete_note" data-toggle="tooltip" data-placement="top" title="Delete"><i class="far fa-trash-alt"></i></label>
                 </div>
             </div>
             <!-- </div> -->
@@ -452,13 +497,15 @@
     <script src="assets/js/jquery-ui.js"></script>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/konva.min.js"></script>
-    <script src="assets/js/shape.js"></script>
+    <!-- <script src="assets/js/shape.js"></script> -->
+
     <script src="assets/js/funcs.js"></script>
     <script src="assets/js/FileSaver.js"></script>
     <script src="assets/js/html2canvas.min.js"></script>
     <script src="assets/js/jspdf.debug.js"></script>
-    <!-- <script src="assets/js/tag/tagify.min.js"></script> -->
+    <script src="assets/js/tag/tagify.min.js"></script>
     <script src="assets/js/tag/jQuery.tagify.min.js"></script>
+    <script src="assets/js/Vortex-001015.js"></script>
     <!-- <script src="assets/js/tag/taginput.js"></script> -->
     <!-- <script src="assets/js/tag/tagin.js"></script> -->
     <!-- <script src="assets/js/sweetalert.min.js"></script> -->
