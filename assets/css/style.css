@@ -1,7 +1,23 @@
+@font-face {
+    font-family: Vazir;
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/fonts/eot/IRANSansWeb.eot'), url('../fonts/fonts/woff2/IRANSansWeb.woff2') format('woff2'), url('../fonts/fonts/woff/IRANSansWeb.woff') format('woff'), url('../fonts/fonts/ttf/IRANSansWeb.ttf') format('truetype');
+}
+
 body {
+    font-family: 'iransans', Arial, sans-serif;
+    font-weight: normal;
     background-color: #fbfbfb;
     overflow: hidden;
     overflow: auto;
+}
+
+p,
+h2,
+span {
+    font-family: 'iransans' !important;
+    font-weight: normal;
 }
 
 @media (min-width: 991.98px) {

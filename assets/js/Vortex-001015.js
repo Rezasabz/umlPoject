@@ -10,6 +10,7 @@ var btn_edit = getFormId('edit_btn')
 var btn_delete = getFormId('btn_delete')
 var btn_delete_note = getFormId('btn_delete_note')
 var btn_init = getFormId('btn_init')
+var btn_delete_partner = getFormId('btn_delete_partner')
 let currentShape;
 var shape_id = ''
 var parent_shape = document.getElementById('parent-shape').addEventListener('dragstart', (e) => {
@@ -27,15 +28,19 @@ var group_ = {
     name,
 }
 var obj_partner = {}
-
-var connect_node2 = {
-    id: 1000,
-    from: '',
-    to: '',
-    arrow: '',
-    message: {},
-    note: {}
-}
+    //--------- هنگام ویرایش پیام آی دی پیام و آی دی نوت به ایونت ثبت فرم ارسال می شوند ------------//
+var from_index = {
+        arrow_index: '',
+        rect_index: ''
+    }
+    // var connect_node2 = {
+    //     id: 1000,
+    //     from: '',
+    //     to: '',
+    //     arrow: '',
+    //     message: {},
+    //     note: {}
+    // }
 
 //---------- اندیس گروه کلیک شده ------------//
 // این فلگ برای ثبت فرم مورد استفاده قرار می گیرد
@@ -82,15 +87,21 @@ var containerRect = stage.container().getBoundingClientRect();
 //#region Form
 
 //#region Send Form
+// function transformTag(tagData) {
+//     var check_valid = error_handler_func(tagData.value)
+//     if (check_valid == false) {
+//         tagData.__isValid = false
+//         tagData.color = "hsl(353.4,40.5%,69%)"
+//         tagData.style = "--tag-bg:" + tagData.color;
+//     } else {
+//         tagData.__isValid = true
+//         tagData.color = "hsl(218, 100%, 58%)"
+//     }
+// }
 function transformTag(tagData) {
-    var check_valid = error_handler_func(tagData.value)
-    if (check_valid == false) {
-        tagData.__isValid = false
-        tagData.color = "hsl(353.4,40.5%,69%)"
-        tagData.style = "--tag-bg:" + tagData.color;
-    } else {
-        tagData.__isValid = true
-    }
+    tagData.color = "hsl(199, 98%, 48%)";
+    tagData.style = "--tag-bg:" + tagData.color + ";" + "--tag-text-color:#FFF";
+
 }
 var input_reciver = new Tagify(document.querySelector('input[name=reciver]'), {
     whitelist: [],
@@ -127,6 +138,17 @@ var input_params = new Tagify(document.querySelector('input[name=params]'), {
     })
     //#endregion
 
+let inputs = [input_reciver, input_def, input_params]
+
+function remove_all_tag(inputs) {
+
+    if (inputs != null) {
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].removeAllTags()
+        }
+    }
+}
+
 //#region Form Edit
 // ----- دکمه ثبت تغییرات در فرم ------//
 btn_param.addEventListener('click', (e) => {
@@ -134,23 +156,64 @@ btn_param.addEventListener('click', (e) => {
     var reciver_value = $('input[name=reciver]').val()
     var define_value = $('input[name=define]').val()
     var params_value = $('input[name=params]').val()
+    let index_arrow
+    let flag = false
 
-    console.log(reciver_value)
+    var check_reciver = JSON.parse(reciver_value).map(function(elem) {
+        return elem.value;
+    })
 
-    if (reciver_value !== '') {
-        var check_reciver = JSON.parse(reciver_value).map(function(elem) {
-            return elem.value;
-        })
-        rect_list.forEach(rc => {
-            if (rc.children[2].attrs.text === check_reciver[0]) {
+    rect_list.filter(ex => {
+        if (ex.children[1].text() === check_reciver[0]) {
+            flag = true
+        }
+
+    })
+
+
+
+
+
+
+    console.log(flag)
+    console.log(check_reciver[0])
+
+    if ((check_reciver[0] !== '') && flag && (check_reciver[0] !== rect_list[from_index.rect_index].children[1].text())) {
+
+        if (from_index.arrow_index != -1) {
+            index_arrow = from_index.arrow_index
+            arrow_list[index_arrow].arrow.destroy()
+            console.log("if => ", index_arrow)
+        } else {
+            var connect_node2 = {
+                id: -1,
+                from: '',
+                to: '',
+                arrow: '',
+                message: {},
+                note: {}
+            }
+            connect_node2.id = arrow_list.length
+            index_arrow = connect_node2.id
+            arrow_list.push(connect_node2)
+            connect_node2.from = rect_list[from_index.rect_index].children[1].text()
+        }
+
+
+        console.log(check_reciver[0])
+        rect_list.forEach((rc, idx) => {
+
+            if (rc.children[1].attrs.text === check_reciver[0]) {
                 invalid_empty_rec.style.display = "none"
                 if (NotEmpty(obj_partner))
                     obj_partner = {}
 
                 obj_partner.reciver = reciver_value != '' ? JSON.parse(reciver_value).map(function(elem) {
-                    return elem.value;
-                }) : []
-                connect_node2.to = rc.attrs.name
+                        return elem.value;
+                    }) : []
+                    // connect_node2.to = rc.children[1].attrs.text
+                arrow_list[index_arrow].to = rc.children[1].attrs.text
+                    // console.log(rc.children[1].attrs.text)
             }
         })
         obj_partner.define = define_value != '' ? JSON.parse(define_value).map(function(elem) {
@@ -170,63 +233,143 @@ btn_param.addEventListener('click', (e) => {
             return elem.value;
         }) : []
         msg_obj.params = obj_partner.params
-        connect_node2.message = msg_obj
-        connect_node2.note = msg_obj
+            // connect_node2.message = msg_obj
+            // connect_node2.note = msg_obj
 
-        obj_partner.partnerName = connect_node2.from
-        obj_partner.sender = connect_node2.from
+        arrow_list[index_arrow].message = msg_obj
+        arrow_list[index_arrow].note = msg_obj
+
+        // obj_partner.partnerName = connect_node2.from
+        // obj_partner.sender = connect_node2.from
+        obj_partner.partnerName = arrow_list[index_arrow].from
+        obj_partner.sender = arrow_list[index_arrow].from
         send_list.push(obj_partner)
 
-        let index_arrow
-        if (connect_node2.id != 1000) {
-            index_arrow = connect_node2.id
-            arrow_list[index_arrow].arrow.destroy()
-        } else {
-            connect_node2.id = arrow_list.length
-            index_arrow = connect_node2.id
-            arrow_list.push(connect_node2)
-        }
 
-        console.log("index_arrow => ", index_arrow)
+
+        // console.log("index_arrow => ", index_arrow)
 
         draw_arrow_from_arrow_list(index_arrow)
-        arrow_count++
+            //arrow_count++
         $('#staticBackdrop').modal('toggle')
         opt.style.display = 'none'
         opt_note.style.display = 'none';
+        remove_all_tag(inputs)
+    } else {
+
+        Swal.fire({
+            icon: 'error',
+            title: 'خطا',
+            text: 'لطفا مقادیر را به درستی وارد کنید',
+        })
+
+        // alert('لطفا مقادیر را به درستی وارد کنید')
     }
 
 })
-let inputs = [input_reciver, input_def, input_params]
 
-function remove_all_tag(inputs) {
 
-    for (let i = 0; i < inputs.length; i++) {
-        btn_param.addEventListener('click', inputs[i].removeAllTags.bind(inputs[i]))
+//#endregion
+
+
+//#region Delete arrow
+function delete_arrow(index) {
+    var index_connect_node = arrow_list[index]
+        // console.log(index_connect_node)
+    index_connect_node.arrow.destroy()
+    arrow_list.splice(index, 1)
+    console.log("sabz --> ", index, arrow_list)
+    for (let i = index; i < arrow_list.length; i++) {
+        arrow_list[i].arrow.destroy()
+        console.log(arrow_list[i].arrow)
+        draw_arrow_from_arrow_list(i)
     }
 }
-remove_all_tag(inputs)
-    // btn_param.on('click', input_reciver.removeAllTags.bind(input_reciver))
-    // btn_param.on('click', input_def.removeAllTags.bind(input_def))
-    // btn_param.on('click', input_params.removeAllTags.bind(input_params))
-    //#endregion
+//#endregion
 
 //#region Delete Function
 function delete_function(btn_id) {
     btn_id.addEventListener('click', (e) => {
+        Swal.fire({
+            title: 'آیا از حذف مورد اطمینان دارید؟',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (from_index.arrow_index !== -1) {
+                    delete_arrow(from_index.arrow_index)
+                } else {
+                    let rect_index = rect_list[from_index.rect_index]
+                    arrow_list.filter((a, idx) => {
+                        if (a.from === rect_index.children[1].text() || a.to === rect_index.children[1].text()) {
+                            delete_arrow(idx)
+                        }
+                    })
+                    rect_index.destroy()
+                    rect_list.splice(from_index.rect_index, 1)
+                }
+                opt.style.display = 'none'
+                opt_note.style.display = 'none'
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1000,
+                    timerProgressBar: true,
+                })
 
-        var index_connect_node = arrow_list[connect_node2.id]
-        console.log(index_connect_node)
-        index_connect_node.arrow.destroy()
-        arrow_list.splice(index_connect_node, 1)
-            // connect_node_list.splice(index_connect_node, 1)
-        arrow_count--
-        remove_all_tag()
+                Toast.fire({
+                    icon: 'success',
+                    title: 'حذف انجام شد'
+                })
+            }
+        })
+
+
     })
 }
 
-delete_function(btn_delete_note)
 
+
+delete_function(btn_delete_note)
+delete_function(btn_delete_partner)
+
+//#endregion
+//#region Update Arrow List
+//#region Update Arrow List
+//--------- مختصات فلش، برچسب و نوت را تنظیم می کند ---------//
+function arrow_group_coordinates(index) {
+
+    var arrow_tmp = arrow_list[index]
+    console.log(arrow_tmp)
+    arrow_tmp.arrow.children[0].y((2 * Dimensions.rect.height) * (index + 1))
+    var labelArrow = arrow_tmp.arrow.children[1]
+    var measure_text = labelArrow.measureSize(labelArrow.text())
+    var arrow_getX = arrow_tmp.arrow.children[0].getX() + 10
+    var distance_partner = arrow_tmp.arrow.children[0].points()[2]
+    var noteX = arrow_getX
+    var labelX = arrow_getX
+    if (distance_partner >= 0) {
+        noteX -= (arrow_tmp.arrow.children[2].children[0].getClientRect().width + 20)
+    } else {
+
+        labelX -= (measure_text.width + 20)
+    }
+
+    var updated_arrow_y = arrow_tmp.arrow.children[0].getY()
+    arrow_tmp.arrow.children[1].y(updated_arrow_y - measure_text.height)
+    arrow_tmp.arrow.children[2].y(updated_arrow_y - arrow_tmp.arrow.children[2].children[0].getClientRect().height)
+
+    arrow_tmp.arrow.children[1].x(labelX)
+    arrow_tmp.arrow.children[2].x(noteX)
+
+}
+
+
+//#endregion
 //#endregion
 //#endregion
 
@@ -245,8 +388,8 @@ function gn_obj(lbl) {
 
         }),
         rec: new Konva.Rect({
-            width: 98,
-            height: 50,
+            width: Dimensions.rect.width,
+            height: Dimensions.rect.height,
             fill: '#ffff',
             stroke: '#7a797f',
             strokeWidth: 2,
@@ -441,7 +584,72 @@ container.addEventListener('drop', (e) => {
         var partner = partnerEventHandler(gn_obj(), pos)
         layer.add(partner.group)
 
+
     }
+})
+
+
+btn_init.addEventListener('click', (e) => {
+    var name_value = $('input[name=name]').val()
+    var sym_value = $('input[name=sym]').val()
+    var Asym_value = $('input[name=Asym]').val()
+    var rc = rect_list[from_index.rect_index]
+    var old_name = rc.children[1].attrs.text
+    var new_name = old_name
+    var flag = true
+    console.log("object 1 ")
+        // rect_list.forEach(rc => {
+        // if ( === ) {
+
+    console.log("object 2 ")
+
+    rect_list.filter(ex => {
+        if (ex.children[1].attrs.text === name_value) {
+            flag = false
+                // break;
+        }
+
+    })
+
+    if (((name_value !== '') || (name_value !== old_name)) && flag) {
+        // if (true) {
+        console.log("object 3 ")
+        new_name = name_value
+
+
+
+        arrow_list.filter(ar => {
+            if (ar.from == old_name) {
+                ar.from = name_value
+            }
+            if (ar.to == old_name) {
+                ar.to = name_value
+            }
+        })
+
+        //     }
+        // })
+        $('#initial').modal('toggle')
+        opt.style.display = 'none'
+        opt_note.style.display = 'none';
+        name_value = ''
+    } else {
+        console.log("object 4 ")
+        opt.style.display = 'none'
+        opt_note.style.display = 'none';
+        // alert("ldcolmdldmvl")
+        Swal.fire({
+            icon: 'error',
+            title: 'خطا',
+            text: 'لطفا مقادیر را به درستی وارد کنید',
+        })
+    }
+    rc.children[1].text(new_name)
+    var measure_text = rc.children[1].measureSize(rc.children[1].attrs.text)
+    rc.children[1].absolutePosition({
+        x: rc.attrs.x - (measure_text.width / 2) + (rc.children[0].attrs.width / 2) - 5,
+        y: rc.attrs.y - (measure_text.height / 2) + (rc.children[0].attrs.height / 2) - 5,
+    })
 })
 
 stage.on('click', (e) => {
@@ -455,14 +663,22 @@ stage.on('click', (e) => {
 
     var group
     if (e.target.parent.getClassName() === "Group") {
+
         if (e.target.parent.parent.name().includes('arrow')) {
             console.log("object 1 ", arrow_list)
+            console.log(" ===> ", e.target.parent.parent.name())
+            opt.style.display = 'none'
             arrow_list.filter((fil, index) => {
                 if (fil.arrow.attrs.name === e.target.parent.parent.attrs.name) {
-                    connect_node2.id = index
-                    console.log(index)
-                    connect_node2.from = fil.from
-                    console.log("object 2", fil.from)
+                    input_reciver.removeAllTags()
+                    input_def.removeAllTags()
+                    input_params.removeAllTags()
+                    from_index.arrow_index = index
+
+                    // connect_node2.id = index
+                    // console.log(index)
+                    // connect_node2.from = fil.from
+                    console.log("object 2", index)
                     opt_note.style.display = 'initial'
                     opt_note.style.top =
                         e.target.parent.attrs.y + 75 + 'px';
@@ -472,66 +688,75 @@ stage.on('click', (e) => {
                         opt_note.style.display = 'none';
                     })
                     invalid_empty_rec.style.display = "none"
+
                     input_reciver.addTags(fil.to)
                     input_def.addTags(fil.message.define)
                     input_params.addTags(fil.message.params)
                 }
             })
         } else if (e.target.parent.name().includes('partner')) {
+            // remove_all_tag(inputs)
+            input_reciver.removeAllTags()
+            input_def.removeAllTags()
+            input_params.removeAllTags()
+            opt_note.style.display = 'none';
             opt.style.display = 'initial'
             opt.style.left = e.target.parent.attrs.x + 370 + 'px';
             opt.style.top = e.target.parent.attrs.y + 75 + 'px';
             rect_list.filter((fil, index) => {
                 if (fil.attrs.name === e.target.parent.attrs.name) {
-                    connect_node2 = {
-                            id: 1000,
-                            from: '',
-                            to: '',
-                            arrow: '',
-                            message: {},
-                            note: {}
-                        }
-                        //-------مقدار دهی نود ابتدایی فلش ---------//
-                    connect_node2.from = fil.attrs.name
-                        // ------ گرفتن شکل انتخاب شده ------------//
+
+
+
+                    // connect_node2 = {
+                    //         id: 1000,
+                    //         from: '',
+                    //         to: '',
+                    //         arrow: '',
+                    //         message: {},
+                    //         note: {}
+                    //     }
+
+                    //-------مقدار دهی نود ابتدایی فلش ---------//
+                    // connect_node2.from = fil.attrs.name
+                    // ------ گرفتن شکل انتخاب شده ------------//
                     group = fil
+
+                    from_index.rect_index = index
+                    from_index.arrow_index = -1
+
+
+                    // ----------- دکمه ثبت انتخاب یا تغییر نام پارتنر و وارد کردن کلیدها -----------//
 
 
                     // flag_cliced_group = index
                 }
             })
 
-            // ----------- دکمه ثبت انتخاب یا تغییر نام پارتنر و وارد کردن کلیدها -----------//
-            btn_init.addEventListener('click', (e) => {
-                var name_value = $('input[name=name]').val()
-                var sym_value = $('input[name=sym]').val()
-                var Asym_value = $('input[name=Asym]').val()
-                if (name_value !== '') {
-                    rect_list.forEach(rc => {
-                        if (rc.name() === connect_node2.from) {
-                            rc.children[1].text(name_value)
-                            var measure_text = rc.children[1].measureSize(rc.children[1].text())
-                            rc.children[1].absolutePosition({
-                                x: rc.attrs.x - (measure_text.width / 2) + (rc.children[0].attrs.width / 2) - 5,
-                                y: rc.attrs.y - (measure_text.height / 2) + (rc.children[0].attrs.height / 2) - 5,
-                            })
-                        }
-                    })
-                    $('#initial').modal('toggle')
-                    opt.style.display = 'none'
-                    opt_note.style.display = 'none';
-                    name_value = ''
+            console.log("click ==> ")
 
-                } else {
-                    alert('لطفا نام و کلید را وارد کنید')
-                }
-            })
+
+
             console.log(rect_list)
                 //------- بروز محل المان ها پس از جابجایی شکل انتخاب شده ------//
             group.on('dragmove', () => {
                 console.log("e.target.parent")
                 opt.style.left = e.target.parent.attrs.x + 370 + 'px';
                 opt.style.top = e.target.parent.attrs.y + 75 + 'px';
+
+                let rect_index = rect_list[from_index.rect_index]
+
+                arrow_list.filter((a, idx) => {
+                    if (a.from === rect_index.children[1].text() || a.to === rect_index.children[1].text()) {
+                        console.log(a)
+                        arrow_points(a.from, a.to, idx)
+                            // var dim = arrow_points(a.from, a.to, idx)
+                            // a.arrow.children[0].setX(dim.first_x)
+                            // a.arrow.children[0].setY(dim.first_y)
+                            // a.arrow.children[0].points([0, 0, dim.width_arrow, dim.height_arrow])
+                    }
+                })
+
             })
 
         }
@@ -779,41 +1004,122 @@ function is_contain(arr, partner) {
 }
 //#endregion
 
-//#region Send Messages
-function send_msg(from, to, msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl_fill = 'green', y2 = null) {
-    //------------- تبدیل پارمترهای ورودی به آبجکت --------//
-    let lbl_msg = ''
-    let note_msg = msg.define.join("\n")
-    note_msg += "\n"
-    let array_obj_params = params_to_note_parser(msg.params, arrow_index)
-    array_obj_params.forEach(ar => {
-            lbl_msg += `(${ar.key})  `
-            note_msg += `\n${ar.key} = ${ar.value}`
-        })
-        //------------- مختصات رسم فلش ------------//
-    var first_x = 0
-    var first_y = 0
-    var second_x = 0
-    var second_y = 0
+//#region Arrow Points
+function arrow_points(from, to, arrow_index, msg) {
+    //------------- مختصات رسم فلش ------------//
+    var offset = {
+        width: Dimensions.rect.width,
+        height: (2 * Dimensions.rect.height) * (arrow_index + 1)
+    }
+    var arrow_dimention = {
+        first_x: offset.width / 2,
+        first_y: offset.height,
+        second_x: offset.width / 2,
+        second_y: offset.height,
+        width_arrow: 0,
+        height_arrow: 0,
+    }
+
+
     rect_list.forEach(el => {
-        if (el.attrs.name === from) {
-            first_x = el.getX()
-            first_y = el.getY()
-        } else if (el.attrs.name === to) {
-            second_x = el.getX()
-            second_y = el.getY()
+        if (el.children[1].attrs.text === from) {
+            arrow_dimention.first_x += el.getX()
+            arrow_dimention.first_y += el.getY()
+        } else if (el.children[1].attrs.text === to) {
+            arrow_dimention.second_x += el.getX()
+            arrow_dimention.second_y += el.getY()
         }
     })
 
-    var distance_partner = second_x - first_x
+
+    // if (arrow_dimention.first_y < arrow_dimention.second_y) {
+    //     arrow_dimention.first_y = arrow_dimention.second_y
+    // }
+
+    arrow_dimention.width_arrow = arrow_dimention.second_x - arrow_dimention.first_x
+    arrow_dimention.height_arrow = arrow_dimention.second_y - arrow_dimention.first_y
+
+    var arrow_group = arrow_list[arrow_index].arrow
+    var labelArrow = arrow_group.children[1]
+    var arrow = arrow_group.children[0]
+    var note_group = arrow_group.children[2]
+    var base_node = note_group.children[0]
+
+
+    arrow.absolutePosition({
+        x: arrow_dimention.first_x,
+        y: arrow_dimention.first_y
+    })
+
+    arrow.points([0, 0, arrow_dimention.width_arrow, arrow_dimention.height_arrow])
+
+
+
+    var measure_text = labelArrow.measureSize(labelArrow.text())
+    var noteX = arrow.getX() + 10
+    var labelX = arrow.getX() + 10
+
+    if (arrow_dimention.width_arrow >= 0) {
+        noteX -= (base_node.getClientRect().width + 20)
+            // labelX = arrow.getX() + 10
+    } else {
+
+        labelX -= (measure_text.width + 20)
+            // labelX -= 20
+    }
+    console.log(labelX)
+    note_group.absolutePosition({
+        x: noteX,
+        y: arrow.getY() - base_node.getClientRect().height
+    })
+
+    labelArrow.absolutePosition({
+        x: labelX,
+        y: arrow.getY() - measure_text.height,
+    })
+
+
+}
+//#endregion
+
+//#region Send Messages
+function send_msg(msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl_fill = 'green', y2 = null) {
+    // var offset = {
+    //         width: Dimensions.rect.width,
+    //         height: (2 * Dimensions.rect.height) * (arrow_index + 1)
+    //     }
+
+    //     //------------- مختصات رسم فلش ------------//
+
+
+
+    // var first_x = 0
+    // var first_y = 0
+    // var second_x = 0
+    // var second_y = 0
+
+    // rect_list.forEach(el => {
+    //     if (el.children[1].attrs.text === from) {
+    //         first_x = el.getX()
+    //         first_y = el.getY()
+    //     } else if (el.children[1].attrs.text === to) {
+    //         second_x = el.getX()
+    //         second_y = el.getY()
+    //     }
+    // })
+    // if (first_y < second_y) {
+    //     first_y = second_y
+    // }
+
+    // var distance_partner = second_x - first_x
     var arrow_group = new Konva.Group({
-        name: "arrow_" + arrow_count,
+        name: "arrow_" + (arrow_count),
         draggable: true,
     })
     var arrow = new Konva.Arrow({
-        x: first_x,
-        y: first_y,
-        points: [0, 0, distance_partner, 0],
+        x: 0,
+        y: 0,
+        points: [0, 0, 0, 0],
         pointerLength: 10,
         pointerWidth: 10,
         fill: arrow_fill,
@@ -822,9 +1128,9 @@ function send_msg(from, to, msg, arrow_index, arrow_fill = 'black', lbl_fontSize
     });
     // connect_node.arrow = arrow
     var labelArrow = new Konva.Text({
-        text: lbl_msg,
-        x: arrow.getX(),
-        y: arrow.getY(),
+        // text: lbl_msg,
+        // x: arrow.getX(),
+        // y: arrow.getY() - 10,
         fontSize: lbl_fontSize,
         fontFamily: 'Calibri',
         fill: lbl_fill,
@@ -832,8 +1138,8 @@ function send_msg(from, to, msg, arrow_index, arrow_fill = 'black', lbl_fontSize
 
 
     let note_group = new Konva.Group({
-        x: first_x,
-        y: first_y,
+        // x: arrow.getX(),
+        // y: arrow.getY(),
         width: 130,
         height: 25,
         draggable: true,
@@ -842,7 +1148,7 @@ function send_msg(from, to, msg, arrow_index, arrow_fill = 'black', lbl_fontSize
     })
 
     let text_note = new Konva.Text({
-        text: note_msg,
+        // text: note_msg,
         fontSize: 13,
         fontFamily: 'Calibri',
         fill: '#000',
@@ -852,24 +1158,50 @@ function send_msg(from, to, msg, arrow_index, arrow_fill = 'black', lbl_fontSize
     })
 
     let base_node = new Konva.Rect({
-            width: text_note.width(),
-            height: text_note.height(),
-            fill: '#fdfd80',
-            shadowOpacity: 0.4,
-            shadowBlur: 2,
-            cornerRadius: [0, 0, 0, 0],
-            shadowColor: 'black',
-            shadowOffset: {
-                x: 1,
-                y: 1
-            },
-            strokeWidth: 4,
-        })
-        // text_note.text(note_msg)
+        // width: text_note.width(),
+        // height: text_note.height(),
+        fill: '#fdfd80',
+        shadowOpacity: 0.4,
+        shadowBlur: 2,
+        cornerRadius: [0, 0, 0, 0],
+        shadowColor: 'black',
+        shadowOffset: {
+            x: 1,
+            y: 1
+        },
+        strokeWidth: 4,
+    })
+
+
+    // text_note.text(note_msg)
+    // var measure_text = labelArrow.measureSize(labelArrow.text())
+    // var noteX = arrow.getX() + 10
+    // var labelX = arrow.getX() + 10
+    // if (dimention.width_arrow >= 0) {
+    //     noteX -= (base_node.getClientRect().width + 20)
+    //         // labelX = arrow.getX() + 10
+    // } else {
+
+    //     labelX -= (measure_text.width + 20)
+    //         // labelX -= 20
+    // }
+    // console.log(labelX)
+    // note_group.absolutePosition({
+    //     x: noteX,
+    //     y: arrow.getY() - base_node.getClientRect().height
+    // })
+
+    // labelArrow.absolutePosition({
+    //     x: labelX,
+    //     y: arrow.getY() - measure_text.height,
+    // })
+    // arrow_points(from, to, arrow_index)
     note_group.add(base_node, text_note)
     arrow_group.add(arrow, labelArrow, note_group)
     layer.add(arrow_group)
+
     console.log("arrow list => ", arrow_list)
+    arrow_count++;
     return { arrow: arrow_group, lbl_arrow: labelArrow }
 }
 
@@ -891,8 +1223,34 @@ function draw_arrow_from_arrow_list(index) {
 
     let idx_arrow_list = arrow_list[index]
     console.log(idx_arrow_list)
-    let drawed_arrow = send_msg(idx_arrow_list.from, idx_arrow_list.to, idx_arrow_list.message, index)
+
+    let drawed_arrow = send_msg(idx_arrow_list.message, index)
     arrow_list[index].arrow = drawed_arrow.arrow
+        //------------- تبدیل پارمترهای ورودی به آبجکت --------//
+    var msg = idx_arrow_list.message
+    let lbl_msg = ''
+    let note_msg = msg.define.join("\n")
+    note_msg += "\n"
+    let array_obj_params = params_to_note_parser(msg.params, index)
+    array_obj_params.forEach(ar => {
+        lbl_msg += `(${ar.key})  `
+        note_msg += `\n${ar.key} = ${ar.value}`
+    })
+
+    //---------- تنظیم مقادیر برچسب و پیام --------------//
+    var note_group = idx_arrow_list.arrow.children[2]
+    note_group.children[1].text(note_msg)
+    idx_arrow_list.arrow.children[1].text(lbl_msg)
+
+    note_group.children[0].width(note_group.children[1].width())
+    note_group.children[0].height(note_group.children[1].height())
+
+
+
+    arrow_points(idx_arrow_list.from, idx_arrow_list.to, index)
+        // arrow_group_coordinates(index)
+    console.log(arrow_list[index].arrow)
+
 
 
 }
