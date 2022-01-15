@@ -272,8 +272,8 @@ input[type="file"] {
 }
 
 #container {
-    width: 3000px;
-    height: 483px;
+    /* width: 3000px;
+    height: 1000px; */
     overflow: hidden;
     background-color: #fdfdfd;
     background-image: radial-gradient(circle, #ddd 1px, rgba(0, 0, 0, 0) 1px);
@@ -320,4 +320,16 @@ input[type="file"] {
 .tags-look .tagify__dropdown__item:hover {
     background: lightyellow;
     border-color: gold;
+}
+
+#stageparent{
+    width:67vw;
+    height:75vh;
+    overflow:scroll;
+}
+#stageparent::-webkit-scrollbar {
+  /*display: none;*/
+}
+#parent_sub {
+    display: table;
 }

@@ -11,11 +11,15 @@ var btn_delete = getFormId('btn_delete')
 var btn_delete_note = getFormId('btn_delete_note')
 var btn_init = getFormId('btn_init')
 var btn_delete_partner = getFormId('btn_delete_partner')
+var btn_save = getFormId('save')
 let currentShape;
 var shape_id = ''
 var parent_shape = document.getElementById('parent-shape').addEventListener('dragstart', (e) => {
     shape_id = e.target.id
 })
+
+var MAX_WIDTH = 3000;
+var MAX_HEIGHT = 3000;
 
 var currentGroupName = {};
 
@@ -74,8 +78,8 @@ var GUIDELINE_OFFSET = 5;
 var stage = new Konva.Stage({
     container: "container",
     // width: 3000,
-    width: width,
-    height: height
+    width: MAX_WIDTH,
+    height: MAX_HEIGHT
 });
 var layer = new Konva.Layer();
 stage.add(layer)
@@ -373,66 +377,168 @@ function arrow_group_coordinates(index) {
 //#endregion
 //#endregion
 
+//#region Save
+function save_source_to_file() {
+    var output = {
+        partners: [],
+        arrows: []
+    }
+    rect_list.forEach((rect, index) => {
+        var partner = {
+            name: '',
+            pos: {
+                x: '',
+                y: '',
+            },
+
+        }
+        partner.name = rect.children[1].text()
+        partner.pos.x = rect.getX()
+        partner.pos.y = rect.getY()
+        output.partners.push(partner)
+    })
+
+    arrow_list.forEach((ar, index) => {
+        var arrow = {
+            from: '',
+            to: '',
+            message: ''
+        }
+        arrow.from = ar.from
+        arrow.to = ar.to
+        arrow.message = ar.message
+        output.arrows.push(arrow)
+    })
+
+    var blob = new Blob([JSON.stringify(output)], {
+        type: "text/plain;charset=utf-8"
+    });
+    saveAs(blob, "sample.json");
+
+}
+btn_save.addEventListener('click', (e) => {
+        save_source_to_file()
+    })
+    //#endregion
+
+//#region Open File
+function open_file() {
+    document.querySelector("#file-input").addEventListener('change', function() {
+        // files that user has chosen
+        var all_files = this.files;
+        if (all_files.length == 0) {
+            alert('Error : No file selected');
+            return;
+        }
+
+        // first file selected by user
+        var file = all_files[0];
+
+        // files types allowed
+        var allowed_types = ['application/json'];
+        if (allowed_types.indexOf(file.type) == -1) {
+            alert('Error : Incorrect file type');
+            return;
+        }
+
+        // Max 5 MB allowed
+        var max_size_allowed = 5 * 1024 * 1024
+        if (file.size > max_size_allowed) {
+            alert('Error : Exceeded size 5MB');
+            return;
+        }
+
+        var reader = new FileReader();
+        
+
+        // file reading finished successfully
+        reader.addEventListener('load', function(e) {
+            var text = e.target.result;
+            var json_text = JSON.parse(text);
+            console.log(json_text)
+            var partner = json_text.partners
+            var arrow = json_text.arrows
+            partner.forEach((p, index) => {
+                var make_partner = create_partner(p.name, p.pos)
+                rect_list.push(make_partner)
+            })
+
+            arrow.forEach((a, index) => {
+                arrow_list.push({ "id": index, "from": a.from, "to": a.to, "arrow": '', "message": a.message })
+                draw_arrow_from_arrow_list(index)
+                    //     var make_arrow = create_arrow(a.from, a.to, a.message)
+            })
+
+            if (text == "") {
+                alert('Error :File Is Empty!')
+            }
+        });
+
+        // file reading failed
+        reader.addEventListener('error', function() {
+            alert('Error : Failed to read file');
+        });
+
+        // read as text file
+        reader.readAsText(file);
+    });
+}
+open_file()
+    //#endregion
+
 //#region Global Functions
 //#region Partner Shape  
-//----- اشیا داخل شکل پارتنر ---------//
-function gn_obj(lbl) {
-    var general_obj_partner = {
-        labelName: new Konva.Text({
-            fontFamily: 'Calibri',
-            fontSize: 18,
-            padding: 5,
-            fill: 'black',
-            text: `Partner${partner_counter}`,
-            align: 'center',
+//----- ساختن اشیا پارتنر ---------//
+function create_partner(lbl, pos) {
+    var labelName = new Konva.Text({
+        fontFamily: 'Calibri',
+        fontSize: 18,
+        padding: 5,
+        fill: 'black',
+        text: lbl,
+        align: 'center',
 
-        }),
-        rec: new Konva.Rect({
-            width: Dimensions.rect.width,
-            height: Dimensions.rect.height,
-            fill: '#ffff',
-            stroke: '#7a797f',
-            strokeWidth: 2,
-            shadowOpacity: 0.4,
-            shadowBlur: 2,
-            shadowColor: 'black',
-            shadowOffset: {
-                x: 1,
-                y: 1
-            },
-            cornerRadius: [5, 5, 5, 5],
-            id: "rect" + count,
-        }),
-        line: new Konva.Line({
-            points: [50, 50, 50, 220, 50, 460],
-            stroke: 'black',
-            strokeWidth: 3,
-            lineJoin: 'round',
-            dash: [33, 10],
-            draggable: false,
-        }),
-        node: new Konva.Rect({
-            width: 7,
-            height: 7,
-            fill: null,
-            stroke: 'blue',
-            strokeWidth: 2,
-        }),
-        group: new Konva.Group({
-            draggable: true,
-            name: "partner" + partner_counter,
-            rotation: 0,
-            id: "rect" + count,
-        }),
-
-
-        resize_gr: new Konva.Transformer({
+    })
+    var rec = new Konva.Rect({
+        width: Dimensions.rect.width,
+        height: Dimensions.rect.height,
+        fill: '#ffff',
+        stroke: '#7a797f',
+        strokeWidth: 2,
+        shadowOpacity: 0.4,
+        shadowBlur: 2,
+        shadowColor: 'black',
+        shadowOffset: {
+            x: 1,
+            y: 1
+        },
+        cornerRadius: [5, 5, 5, 5],
+        id: "rect" + count,
+    })
+    var line = new Konva.Line({
+        points: [50, 50, 50, 220, 50, 460],
+        stroke: 'black',
+        strokeWidth: 3,
+        lineJoin: 'round',
+        dash: [33, 10],
+        draggable: false,
+    })
+    var group = new Konva.Group({
+        x: pos.x,
+        y: pos.y,
+        // draggable: true,
+        name: "partner" + (partner_counter),
+        rotation: 0,
+        id: "rect" + count,
+    })
+    partner_counter++
+    var resize_gr = new Konva.Transformer({
             ignoreStroke: true,
             borderDash: [3, 3],
             centeredScaling: true,
             rotationSnaps: [0, 90, 180, 270],
             padding: 5,
-        }),
+        })
         // resize_arrow: new Konva.Transformer({
         //     ignoreStroke: true,
         //     borderDash: [3, 3],
@@ -442,8 +548,19 @@ function gn_obj(lbl) {
         // }),
 
 
-    }
-    return general_obj_partner
+    group.add(rec, labelName, line)
+    var measure_text = labelName.measureSize(labelName.text())
+
+    labelName.absolutePosition({
+        x: group.attrs.x - (measure_text.width / 2) + (group.children[0].attrs.width / 2) - 5,
+        y: group.attrs.y - (measure_text.height / 2) + (group.children[0].attrs.height / 2) - 5,
+    })
+
+
+    count++
+    layer.add(group)
+
+    return group
 }
 //#endregion
 //#region Note
@@ -530,44 +647,45 @@ function add_element_to_array_if_not_exist(array, partner_list, element, val, la
 
 //#region Create Partner Shape
 //----- ساختن اجزای پارتنر در زمان درگ یا باز کردن فایل ---------//
-function partnerEventHandler(obj, p = null) {
+// function partnerEventHandler(lbl, p = null) {
 
-    var pos = {}
-    if (p != null) {
-        pos = p
-    } else {
-        if (obj.group) {
-            pos.x = obj.group.attrs.x
-            pos.y = obj.group.attrs.y
-        }
-    }
-    if (obj.group) {
-        obj.group.absolutePosition({
-            x: pos.x,
-            y: pos.y,
-        })
-        obj.group.add(obj.rec, obj.labelName, obj.line)
-        var measure_text = obj.labelName.measureSize(obj.labelName.text())
-        obj.labelName.absolutePosition({
-            x: obj.group.attrs.x - (measure_text.width / 2) + (obj.group.children[0].attrs.width / 2) - 5,
-            y: obj.group.attrs.y - (measure_text.height / 2) + (obj.group.children[0].attrs.height / 2) - 5,
-        })
+//     var general_obj = gn_obj(lbl, p)
+//     var pos = {}
+//     if (p != null) {
+//         pos = p
+//     } else {
+//         if (obj.group) {
+//             pos.x = obj.group.attrs.x
+//             pos.y = obj.group.attrs.y
+//         }
+//     }
+//     if (obj.group) {
+//         obj.group.absolutePosition({
+//                 x: pos.x,
+//                 y: pos.y,
+//             })
+//             // obj.group.add(obj.rec, obj.labelName, obj.line)
+//             // var measure_text = obj.labelName.measureSize(obj.labelName.text())
+//             // obj.labelName.absolutePosition({
+//             //     x: obj.group.attrs.x - (measure_text.width / 2) + (obj.group.children[0].attrs.width / 2) - 5,
+//             //     y: obj.group.attrs.y - (measure_text.height / 2) + (obj.group.children[0].attrs.height / 2) - 5,
+//             // })
 
-        if (rect_list.length != 0) {
-            rect_list.forEach(a => {
-                if (a.name() != obj.group.name()) {
-                    rect_list.push(obj.group)
-                }
-            })
-        } else {
-            rect_list.push(obj.group)
-        }
-    }
-    partner_counter++
-    count++
+//         if (rect_list.length != 0) {
+//             rect_list.forEach(a => {
+//                 if (a.name() != obj.group.name()) {
+//                     rect_list.push(obj.group)
+//                 }
+//             })
+//         } else {
+//             rect_list.push(obj.group)
+//         }
+//     }
+//     // partner_counter++
+//     // count++
 
-    return obj
-}
+//     return obj
+// }
 //#endregion
 
 //#endregion
@@ -578,13 +696,11 @@ container.addEventListener('drop', (e) => {
     e.preventDefault()
     stage.setPointersPositions(e)
 
-
+    var label = `Partner${partner_counter}`
     var pos = stage.getPointerPosition()
     if (shape_id == 'square') {
-        var partner = partnerEventHandler(gn_obj(), pos)
-        layer.add(partner.group)
-
-
+        var partner = create_partner(label, pos)
+        rect_list.push(partner)
     }
 })
 
@@ -651,132 +767,137 @@ btn_init.addEventListener('click', (e) => {
         y: rc.attrs.y - (measure_text.height / 2) + (rc.children[0].attrs.height / 2) - 5,
     })
 })
+//#region Transformer
+    var tr = new Konva.Transformer();
+    layer.add(tr);
+//#endregion
+
+
 
 stage.on('click', (e) => {
-    e.evt.preventDefault();
+        e.evt.preventDefault();
 
-    if (e.target === stage) {
-        opt.style.display = 'none'
-        opt_note.style.display = 'none';
-        return;
-    }
-
-    var group
-    if (e.target.parent.getClassName() === "Group") {
-
-        if (e.target.parent.parent.name().includes('arrow')) {
-            console.log("object 1 ", arrow_list)
-            console.log(" ===> ", e.target.parent.parent.name())
+        if (e.target === stage) {
             opt.style.display = 'none'
-            arrow_list.filter((fil, index) => {
-                if (fil.arrow.attrs.name === e.target.parent.parent.attrs.name) {
-                    input_reciver.removeAllTags()
-                    input_def.removeAllTags()
-                    input_params.removeAllTags()
-                    from_index.arrow_index = index
-
-                    // connect_node2.id = index
-                    // console.log(index)
-                    // connect_node2.from = fil.from
-                    console.log("object 2", index)
-                    opt_note.style.display = 'initial'
-                    opt_note.style.top =
-                        e.target.parent.attrs.y + 75 + 'px';
-                    opt_note.style.left =
-                        e.target.parent.attrs.x + 410 + 'px';
-                    opt_note.addEventListener('click', () => {
-                        opt_note.style.display = 'none';
-                    })
-                    invalid_empty_rec.style.display = "none"
-
-                    input_reciver.addTags(fil.to)
-                    input_def.addTags(fil.message.define)
-                    input_params.addTags(fil.message.params)
-                }
-            })
-        } else if (e.target.parent.name().includes('partner')) {
-            // remove_all_tag(inputs)
-            input_reciver.removeAllTags()
-            input_def.removeAllTags()
-            input_params.removeAllTags()
             opt_note.style.display = 'none';
-            opt.style.display = 'initial'
-            opt.style.left = e.target.parent.attrs.x + 370 + 'px';
-            opt.style.top = e.target.parent.attrs.y + 75 + 'px';
-            rect_list.filter((fil, index) => {
-                if (fil.attrs.name === e.target.parent.attrs.name) {
+            tr.nodes([])
+            if(from_index.rect_index != ''){
+                rect_list[from_index.rect_index].draggable(false)
+                console.log("test drag", rect_list[from_index.rect_index].draggable())
+            }
+            return;
+        }
 
 
+        var group
+        if (e.target.parent.getClassName() === "Group") {
 
-                    // connect_node2 = {
-                    //         id: 1000,
-                    //         from: '',
-                    //         to: '',
-                    //         arrow: '',
-                    //         message: {},
-                    //         note: {}
-                    //     }
+            if (e.target.parent.parent.name().includes('arrow')) {
+                console.log("object 1 ", arrow_list)
+                console.log(" ===> ", e.target.parent.parent.name())
+                opt.style.display = 'none'
+                arrow_list.filter((fil, index) => {
+                    if (fil.arrow.attrs.name === e.target.parent.parent.attrs.name) {
+                        tr.nodes([fil.arrow.children[2]])
+                        input_reciver.removeAllTags()
+                        input_def.removeAllTags()
+                        input_params.removeAllTags()
+                        from_index.arrow_index = index
 
-                    //-------مقدار دهی نود ابتدایی فلش ---------//
-                    // connect_node2.from = fil.attrs.name
-                    // ------ گرفتن شکل انتخاب شده ------------//
-                    group = fil
+                        // connect_node2.id = index
+                        // console.log(index)
+                        // connect_node2.from = fil.from
+                        console.log("object 2", index)
+                        opt_note.style.display = 'initial'
+                        opt_note.style.top =
+                            e.target.parent.attrs.y + 75 + 'px';
+                        opt_note.style.left =
+                            e.target.parent.attrs.x + 410 + 'px';
+                        opt_note.addEventListener('click', () => {
+                            opt_note.style.display = 'none';
+                        })
+                        invalid_empty_rec.style.display = "none"
 
-                    from_index.rect_index = index
-                    from_index.arrow_index = -1
-
-
-                    // ----------- دکمه ثبت انتخاب یا تغییر نام پارتنر و وارد کردن کلیدها -----------//
-
-
-                    // flag_cliced_group = index
-                }
-            })
-
-            console.log("click ==> ")
-
-
-
-            console.log(rect_list)
-                //------- بروز محل المان ها پس از جابجایی شکل انتخاب شده ------//
-            group.on('dragmove', () => {
-                console.log("e.target.parent")
+                        input_reciver.addTags(fil.to)
+                        input_def.addTags(fil.message.define)
+                        input_params.addTags(fil.message.params)
+                    }
+                })
+            } else if (e.target.parent.name().includes('partner')) {
+                // remove_all_tag(inputs)
+                input_reciver.removeAllTags()
+                input_def.removeAllTags()
+                input_params.removeAllTags()
+                opt_note.style.display = 'none';
+                opt.style.display = 'initial'
                 opt.style.left = e.target.parent.attrs.x + 370 + 'px';
                 opt.style.top = e.target.parent.attrs.y + 75 + 'px';
+                rect_list.filter((fil, index) => {
+                    if (fil.attrs.name === e.target.parent.attrs.name) {
+                        tr.nodes([fil])
+                        fil.draggable(true)
 
-                let rect_index = rect_list[from_index.rect_index]
 
-                arrow_list.filter((a, idx) => {
-                    if (a.from === rect_index.children[1].text() || a.to === rect_index.children[1].text()) {
-                        console.log(a)
-                        arrow_points(a.from, a.to, idx)
-                            // var dim = arrow_points(a.from, a.to, idx)
-                            // a.arrow.children[0].setX(dim.first_x)
-                            // a.arrow.children[0].setY(dim.first_y)
-                            // a.arrow.children[0].points([0, 0, dim.width_arrow, dim.height_arrow])
+                        // connect_node2 = {
+                        //         id: 1000,
+                        //         from: '',
+                        //         to: '',
+                        //         arrow: '',
+                        //         message: {},
+                        //         note: {}
+                        //     }
+
+                        //-------مقدار دهی نود ابتدایی فلش ---------//
+                        // connect_node2.from = fil.attrs.name
+                        // ------ گرفتن شکل انتخاب شده ------------//
+                        group = fil
+
+                        from_index.rect_index = index
+                        from_index.arrow_index = -1
+
+
+                        // ----------- دکمه ثبت انتخاب یا تغییر نام پارتنر و وارد کردن کلیدها -----------//
+
+
+                        // flag_cliced_group = index
                     }
                 })
 
-            })
+                console.log("click ==> ")
 
+
+
+                console.log(rect_list)
+                    //------- بروز محل المان ها پس از جابجایی شکل انتخاب شده ------//
+                group.on('dragmove', () => {
+                    
+                    console.log(from_index.rect_index)
+                    opt.style.left = e.target.parent.attrs.x + 370 + 'px';
+                    opt.style.top = e.target.parent.attrs.y + 75 + 'px';
+
+                    let rect_index = rect_list[from_index.rect_index]
+
+                    arrow_list.filter((a, idx) => {
+                        if (a.from === rect_index.children[1].text() || a.to === rect_index.children[1].text()) {
+                            console.log(a)
+                            arrow_points(a.from, a.to, idx)
+                                // var dim = arrow_points(a.from, a.to, idx)
+                                // a.arrow.children[0].setX(dim.first_x)
+                                // a.arrow.children[0].setY(dim.first_y)
+                                // a.arrow.children[0].points([0, 0, dim.width_arrow, dim.height_arrow])
+                        }
+                    })
+
+                })
+                group.on('mouseleave', ()=>{
+                    group.draggable(false)
+                })
+
+            }
         }
-    }
 
-})
-
-// stage.on('dragmove', (e) => {
-//     var group
-//         if (e.target.parent.getClassName() === "Group") {
-//             rect_list.forEach(gr=>{
-//                 if(gr.attrs.name == e.target.parent.getClassName())
-//                  group = gr
-//             })
-
-//             group.on('dragmove')
-//         console.log("e.target.parent")
-//             }
-//     })
-//#endregion
+    })
+    //#endregion
 
 //#region Parser
 var tmp_func_content
@@ -1031,11 +1152,6 @@ function arrow_points(from, to, arrow_index, msg) {
         }
     })
 
-
-    // if (arrow_dimention.first_y < arrow_dimention.second_y) {
-    //     arrow_dimention.first_y = arrow_dimention.second_y
-    // }
-
     arrow_dimention.width_arrow = arrow_dimention.second_x - arrow_dimention.first_x
     arrow_dimention.height_arrow = arrow_dimention.second_y - arrow_dimention.first_y
 
@@ -1053,19 +1169,15 @@ function arrow_points(from, to, arrow_index, msg) {
 
     arrow.points([0, 0, arrow_dimention.width_arrow, arrow_dimention.height_arrow])
 
-
-
     var measure_text = labelArrow.measureSize(labelArrow.text())
     var noteX = arrow.getX() + 10
     var labelX = arrow.getX() + 10
 
     if (arrow_dimention.width_arrow >= 0) {
         noteX -= (base_node.getClientRect().width + 20)
-            // labelX = arrow.getX() + 10
     } else {
 
         labelX -= (measure_text.width + 20)
-            // labelX -= 20
     }
     console.log(labelX)
     note_group.absolutePosition({
@@ -1084,34 +1196,6 @@ function arrow_points(from, to, arrow_index, msg) {
 
 //#region Send Messages
 function send_msg(msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl_fill = 'green', y2 = null) {
-    // var offset = {
-    //         width: Dimensions.rect.width,
-    //         height: (2 * Dimensions.rect.height) * (arrow_index + 1)
-    //     }
-
-    //     //------------- مختصات رسم فلش ------------//
-
-
-
-    // var first_x = 0
-    // var first_y = 0
-    // var second_x = 0
-    // var second_y = 0
-
-    // rect_list.forEach(el => {
-    //     if (el.children[1].attrs.text === from) {
-    //         first_x = el.getX()
-    //         first_y = el.getY()
-    //     } else if (el.children[1].attrs.text === to) {
-    //         second_x = el.getX()
-    //         second_y = el.getY()
-    //     }
-    // })
-    // if (first_y < second_y) {
-    //     first_y = second_y
-    // }
-
-    // var distance_partner = second_x - first_x
     var arrow_group = new Konva.Group({
         name: "arrow_" + (arrow_count),
         draggable: true,
@@ -1126,11 +1210,7 @@ function send_msg(msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl
         stroke: arrow_fill,
         strokeWidth: 2,
     });
-    // connect_node.arrow = arrow
     var labelArrow = new Konva.Text({
-        // text: lbl_msg,
-        // x: arrow.getX(),
-        // y: arrow.getY() - 10,
         fontSize: lbl_fontSize,
         fontFamily: 'Calibri',
         fill: lbl_fill,
@@ -1138,8 +1218,6 @@ function send_msg(msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl
 
 
     let note_group = new Konva.Group({
-        // x: arrow.getX(),
-        // y: arrow.getY(),
         width: 130,
         height: 25,
         draggable: true,
@@ -1148,18 +1226,14 @@ function send_msg(msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl
     })
 
     let text_note = new Konva.Text({
-        // text: note_msg,
         fontSize: 13,
         fontFamily: 'Calibri',
         fill: '#000',
-        // width: 200,
         padding: 10,
         align: 'left'
     })
 
     let base_node = new Konva.Rect({
-        // width: text_note.width(),
-        // height: text_note.height(),
         fill: '#fdfd80',
         shadowOpacity: 0.4,
         shadowBlur: 2,
@@ -1171,31 +1245,6 @@ function send_msg(msg, arrow_index, arrow_fill = 'black', lbl_fontSize = 20, lbl
         },
         strokeWidth: 4,
     })
-
-
-    // text_note.text(note_msg)
-    // var measure_text = labelArrow.measureSize(labelArrow.text())
-    // var noteX = arrow.getX() + 10
-    // var labelX = arrow.getX() + 10
-    // if (dimention.width_arrow >= 0) {
-    //     noteX -= (base_node.getClientRect().width + 20)
-    //         // labelX = arrow.getX() + 10
-    // } else {
-
-    //     labelX -= (measure_text.width + 20)
-    //         // labelX -= 20
-    // }
-    // console.log(labelX)
-    // note_group.absolutePosition({
-    //     x: noteX,
-    //     y: arrow.getY() - base_node.getClientRect().height
-    // })
-
-    // labelArrow.absolutePosition({
-    //     x: labelX,
-    //     y: arrow.getY() - measure_text.height,
-    // })
-    // arrow_points(from, to, arrow_index)
     note_group.add(base_node, text_note)
     arrow_group.add(arrow, labelArrow, note_group)
     layer.add(arrow_group)
@@ -1678,3 +1727,4 @@ function toolbox_manager(type) {
 }
 
 //#endregion
+ 
