@@ -1,15 +1,15 @@
-var width = document.getElementById('container').offsetWidth;
-var height = document.getElementById('container').offsetHeight;
+// var width = document.getElementById('container').offsetWidth;
+// var height = document.getElementById('container').offsetHeight;
 
-var stage = new Konva.Stage({
-    container: "container",
-    width: width,
-    height: height
-});
-var layer = new Konva.Layer();
+// var stage = new Konva.Stage({
+//     container: "container",
+//     width: 3000,
+//     height: height
+// });
+// var layer = new Konva.Layer();
 
 
-stage.add(layer)
+// stage.add(layer)
 var first_point = {}
 var second_point = {}
 
@@ -3059,8 +3059,9 @@ class FuncTool {
     }
 
 
-    saveStaticDataToFile() {
-        var blob = new Blob([stage.toJSON()], {
+    saveStaticDataToFile(node) {
+        var a = node.toJSON()
+        var blob = new Blob([a], {
             type: "text/plain;charset=utf-8"
         });
         saveAs(blob, "sample.json");
@@ -3068,7 +3069,9 @@ class FuncTool {
 
     import_f(file) {
 
-        var s = Konva.Node.create(file, 'container');
+
+
+        var s = Konva.Node.create(JSON.stringify(file), 'container');
         // s.draggable(true)
         var tr = new Konva.Transformer({
             borderDash: [3, 3],
@@ -3083,63 +3086,147 @@ class FuncTool {
         // this.atach_resize(s, tr, stage)
     }
 
+
+
 }
 
-function save() {
-    var s = new FuncTool()
-    s.saveStaticDataToFile()
-}
+// var array_json = []
+// btn_save = document.getElementById('save');
+// btn_save.addEventListener('click', (e) => {
+//     console.log(shape_list.toJSON())
+//         // shape_list.forEach(sh => {
+//         //         console.log(sh)
+//         //             // array_json.push(sh.toJSON())
+//         //     })
+//         // var blob = new Blob(array_json, {
+//         //     type: "text/plain;charset=utf-8"
+//         // });
+//         // saveAs(blob, "sample.json");
+//         // var s = new FuncTool()
+//         // s.saveStaticDataToFile(shape_list)
+//         // this.saveStaticDataToFile(stage)
+// })
 
-function import_file() {
+// function save() {
+//     var s = new FuncTool()
+//     s.saveStaticDataToFile()
+// }
 
-    var load_file = new FuncTool()
+// function create(data, stg) {
+//     const obj = {}
+//     var state = [data];
+//     state.forEach((i) => {
+//         if (i.className == 'Layer') {
+//             obj.layer = new Konva.Layer({...i });
 
-    document.querySelector("#file-input").addEventListener('change', function() {
-        // files that user has chosen
-        var all_files = this.files;
-        if (all_files.length == 0) {
-            alert('Error : No file selected');
-            return;
-        }
+//         }
+//         i.children.forEach((j) => {
+//                 switch (j.className) {
+//                     case "Group":
+//                         obj.group = new Konva.Group({
+//                             draggable: true,
+//                             name: j.attrs.name,
+//                             x: j.attrs.x,
+//                             y: j.attrs.y,
+//                         });
+//                         layer.add(obj.group);
+//                         obj.group.on('click', (e) => {
+//                             console.log(obj.group.name())
+//                                 // tr.nodes([group])
+//                         })
+//                         j.children.forEach((ch) => {
+//                             switch (ch.className) {
+//                                 case "Line":
+//                                     obj.group.line = new Konva.Line({...ch });
+//                                     obj.group.add(obj.group.line);
+//                                     break;
+//                                 case "Rect":
+//                                     obj.group.rec = new Konva.Rect({...ch });
+//                                     obj.group.add(obj.group.rec);
+//                                     break;
+//                                 case "Text":
+//                                     obj.group.labelName = new Konva.Text({...ch });
+//                                     obj.group.add(obj.group.labelName);
+//                                     break;
+//                             }
+//                         })
+//                         break;
+//                     case "Text":
+//                         obj.simpleText = new Konva.Text({...j });
+//                         layer.add(obj.simpleText);
+//                         break;
 
-        // first file selected by user
-        var file = all_files[0];
+//                     case "Arrow":
+//                         obj.arrow_distance = new Konva.Arrow({...j });
+//                         layer.add(obj.arrow_distance);
+//                         break;
+//                     case "Transformer":
+//                         obj.resize_gr = new Konva.Transformer({...j });
 
-        // files types allowed
-        var allowed_types = ['application/json'];
-        if (allowed_types.indexOf(file.type) == -1) {
-            alert('Error : Incorrect file type');
-            return;
-        }
+//                         layer.add(obj.resize_gr);
+//                         // tr.attachTo(group)
 
-        // Max 5 MB allowed
-        var max_size_allowed = 5 * 1024 * 1024
-        if (file.size > max_size_allowed) {
-            alert('Error : Exceeded size 5MB');
-            return;
-        }
+//                         break;
+//                 }
+//             })
+//             // stg.add(layer);
+//     })
+//     return obj
+// }
 
-        var reader = new FileReader();
+// function import_file() {
 
-        // file reading finished successfully
-        reader.addEventListener('load', function(e) {
-            var text = e.target.result;
-            load_file.import_f(text)
-            console.log(JSON.stringify(text))
-            if (text == "") {
-                alert('Error :File Is Empty!')
-            }
-        });
+//     var load_file = new FuncTool()
 
-        // file reading failed
-        reader.addEventListener('error', function() {
-            alert('Error : Failed to read file');
-        });
+//     document.querySelector("#file-input").addEventListener('change', function() {
+//         // files that user has chosen
+//         var all_files = this.files;
+//         if (all_files.length == 0) {
+//             alert('Error : No file selected');
+//             return;
+//         }
 
-        // read as text file
-        reader.readAsText(file);
-    });
-}
+//         // first file selected by user
+//         var file = all_files[0];
+
+//         // files types allowed
+//         var allowed_types = ['application/json'];
+//         if (allowed_types.indexOf(file.type) == -1) {
+//             alert('Error : Incorrect file type');
+//             return;
+//         }
+
+//         // Max 5 MB allowed
+//         var max_size_allowed = 5 * 1024 * 1024
+//         if (file.size > max_size_allowed) {
+//             alert('Error : Exceeded size 5MB');
+//             return;
+//         }
+
+//         var reader = new FileReader();
+
+//         // file reading finished successfully
+//         reader.addEventListener('load', function(e) {
+//             var text = e.target.result;
+//             console.log(create(JSON.parse(text), stage))
+//                 // create(JSON.parse(text), stage)
+//                 // load_file.import_f(text)
+
+//             // console.log(text)
+//             if (text == "") {
+//                 alert('Error :File Is Empty!')
+//             }
+//         });
+
+//         // file reading failed
+//         reader.addEventListener('error', function() {
+//             alert('Error : Failed to read file');
+//         });
+
+//         // read as text file
+//         reader.readAsText(file);
+//     });
+// }
 
 
 function exportToPdf() {
@@ -3158,23 +3245,23 @@ function exportToPdf() {
         pdf.save('canvas.pdf');
     })
 }
-import_file()
+// import_file()
 exportToPdf()
 
-var cont = stage.container()
-var shape_id = ''
-var parent_shape = document.getElementById('parent-shape-func').addEventListener('dragstart', (e) => {
-    shape_id = e.target.id
-})
+// var cont = stage.container()
+// var shape_id = ''
+// var parent_shape = document.getElementById('parent-shape-func').addEventListener('dragstart', (e) => {
+//     shape_id = e.target.id
+// })
 
 
-cont.addEventListener('dragover', (e) => {
+container.addEventListener('dragover', (e) => {
     e.preventDefault()
 
 })
 
 
-cont.addEventListener('drop', (e) => {
+container.addEventListener('drop', (e) => {
     e.preventDefault()
     stage.setPointersPositions(e)
 

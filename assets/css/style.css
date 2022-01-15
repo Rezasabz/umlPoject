@@ -1,7 +1,23 @@
+@font-face {
+    font-family: Vazir;
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/fonts/eot/IRANSansWeb.eot'), url('../fonts/fonts/woff2/IRANSansWeb.woff2') format('woff2'), url('../fonts/fonts/woff/IRANSansWeb.woff') format('woff'), url('../fonts/fonts/ttf/IRANSansWeb.ttf') format('truetype');
+}
+
 body {
+    font-family: 'iransans', Arial, sans-serif;
+    font-weight: normal;
     background-color: #fbfbfb;
     overflow: hidden;
     overflow: auto;
+}
+
+p,
+h2,
+span {
+    font-family: 'iransans' !important;
+    font-weight: normal;
 }
 
 @media (min-width: 991.98px) {
@@ -256,8 +272,8 @@ input[type="file"] {
 }
 
 #container {
-    width: 3000px;
-    height: 3000px;
+    /* width: 3000px;
+    height: 1000px; */
     overflow: hidden;
     background-color: #fdfdfd;
     background-image: radial-gradient(circle, #ddd 1px, rgba(0, 0, 0, 0) 1px);
@@ -266,9 +282,54 @@ input[type="file"] {
 
 #scroll-container {
     width: calc(100% - 22px);
-    height: calc(95vh - 22px);
+    /* height: calc(95vh - 22px); */
     overflow: auto;
     margin-top: 50px;
     margin-left: 20px;
     /* border: 1px solid grey; */
+}
+
+.m-left {
+    margin-left: 22px !important;
+}
+
+.p-tab {
+    padding: 6px !important;
+}
+
+.nav-tabs {
+    border-bottom: none !important;
+}
+
+.tags-look .tagify__dropdown__item {
+    display: inline-block;
+    border-radius: 3px;
+    padding: .3em .5em;
+    border: 1px solid #CCC;
+    background: #F3F3F3;
+    margin: .2em;
+    font-size: .85em;
+    color: black;
+    transition: 0s;
+}
+
+.tags-look .tagify__dropdown__item--active {
+    color: black;
+}
+
+.tags-look .tagify__dropdown__item:hover {
+    background: lightyellow;
+    border-color: gold;
+}
+
+#stageparent{
+    width:67vw;
+    height:75vh;
+    overflow:scroll;
+}
+#stageparent::-webkit-scrollbar {
+  /*display: none;*/
+}
+#parent_sub {
+    display: table;
 }

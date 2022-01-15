@@ -1,3 +1,22 @@
+// Get the current frame's height and width:
+var width = document.getElementById('container').offsetWidth;
+var height = document.getElementById('container').offsetHeight;
+var GUIDELINE_OFFSET = 5;
+
+var stage = new Konva.Stage({
+    container: "container",
+    // width: 3000,
+    width: width,
+    height: height
+});
+var layer = new Konva.Layer();
+var i = 1;
+var j = 1;
+var x = 50
+var y = 10;
+var tex = 200;
+var blockSnapSize = 30;
+
 var count = 0
 var partner_counter = 0
 var arrow_count = 0
@@ -10,11 +29,67 @@ var ct = 0
 var send_list = []
 var init_list = []
 var params_arr = []
+var array_json = []
+var macro_list = []
+var function_array = []
+var nonce_array = []
+var array_state_note = []
+var key_word_list = ["Hash(message)", "Mac(message,key)", "Enc(message,key)", "Dec(message,key)", "Sign(message,key)", "Verify(sign,key)", "AEnc(message,key)", "ADec(message,key)"]
+
+var global_partner_list = {
+    partners: []
+}
+
+var input_def_note
+var input_params_note
+
+var input_reciver
+var input_def
+var input_params
+
+var input_reciver_test
+var input_def_test
+var input_params_test
+
+var input_reciver_test_tagify
+var input_def_test_tagify
+var input_params_test_tagify
+
+// ---------------------------- get Id ----------------------------//
+var invalid_empty_rec = document.querySelector('#invalid-empty-rec')
+    // ----------------------------------------------------------------//
+
+
+// var gridLayer = new Konva.Layer();
+// var padding = blockSnapSize;
+// console.log(width, padding, width / padding);
+// for (var i = 0; i < width / padding; i++) {
+//     gridLayer.add(new Konva.Line({
+//         points: [Math.round(i * padding) + 0.5, 0, Math.round(i * padding) + 0.5, height],
+//         stroke: '#ddd',
+//         strokeWidth: 1,
+//     }));
+// }
+
+// gridLayer.add(new Konva.Line({ points: [0, 0, 10, 10] }));
+// for (var j = 0; j < height / padding; j++) {
+//     gridLayer.add(new Konva.Line({
+//         points: [0, Math.round(j * padding), width, Math.round(j * padding)],
+//         stroke: '#ddd',
+//         strokeWidth: 0.5,
+//     }));
+// }
+
+// stage.add(gridLayer);
+
+stage.add(layer)
+var json
 
 
 function NotEmpty(obj) {
     return Object.keys(obj).length !== 0;
 }
+
 
 // function draw_arrow(){
 
@@ -23,382 +98,16 @@ function NotEmpty(obj) {
 // Rectangle And Line
 // class RectNode {
 
-function getFormId() {
-    var btn_param = document.getElementById('submit_btn')
+function getFormId(id) {
+    var btn_param = document.getElementById(id)
     return btn_param
 }
 // class RectNode {
-function create_rect(x, y, layer, stage, currentGroupName) {
 
-    var rec = new Konva.Rect({
-        width: 98,
-        height: 50,
-        fill: '#ffff',
-        stroke: '#7a797f',
-        strokeWidth: 2,
-        shadowOpacity: 0.4,
-        shadowBlur: 2,
-        shadowColor: 'black',
-        shadowOffset: {
-            x: 1,
-            y: 1
-        },
-        cornerRadius: [5, 5, 5, 5],
-        id: "rect" + count,
-    });
-
-    var line = new Konva.Line({
-        points: [50, 50, 50, 220, 50, 460],
-        stroke: 'black',
-        strokeWidth: 3,
-        lineJoin: 'round',
-        dash: [33, 10],
-        draggable: false,
-    });
-
-    var node = new Konva.Rect({
-        width: 7,
-        height: 7,
-        fill: null,
-        stroke: 'blue',
-        strokeWidth: 2,
-    });
-
-    var labelName =
-        new Konva.Text({
-            fontFamily: 'Calibri',
-            fontSize: 18,
-            padding: 5,
-            fill: 'black',
-            align: 'center',
-
-        })
-
-    var measure_text = labelName.measureSize(labelName.text())
-    line.on('mouseover', (e) => {
-        node.absolutePosition({
-            x: e.evt.layerX - 3,
-            y: e.evt.layerY
-        })
-
-        layer.add(node)
-
-    })
-    line.on('mouseleave', (e) => {
-        node.destroy()
-    })
-
-    var group = new Konva.Group({
-        name: "partner" + partner_counter,
-        x: x,
-        y: y,
-        rotation: 0,
-        id: "rect" + count,
-    });
-
-    group.add(line, rec, labelName)
-    labelName.absolutePosition({
-        x: x + 40 - (measure_text.width / 2),
-        y: y + 20 - (measure_text.height / 2),
-
-    })
-    rec.on('mouseover', () => {
-        stage.container().style.cursor = 'pointer';
-    })
-    rec.on('mouseleave', () => {
-        stage.container().style.cursor = 'default';
-    })
-
-    var resize_gr = new Konva.Transformer({
-        nodes: [group],
-        ignoreStroke: true,
-        borderDash: [3, 3],
-        centeredScaling: true,
-        rotationSnaps: [0, 90, 180, 270],
-        padding: 5,
-    });
-    resize_gr.on('transform', (e) => {
-        resize_gr.setAttrs({
-            width: Math.max(group.width() * group.scaleX(), 5),
-            height: Math.max(group.height() * group.scaleY(), 5),
-            scaleX: 1,
-            scaleY: 1,
-        })
-    })
-    var grp_array = new Konva.Group({
-        rotation: 0,
-    });
-
-    layer.add(group)
-
-
-    // rect_list.push(group)
-    var get_from_pos
-    var get_to_pos
-    var points_diff
-    var arr_dif
-    var simpleLabel
-    var b = document.getElementById('test')
-
-
-
-
-    stage.on('click', (e) => {
-        // console.log(e)
-        if (e.target === stage)
-            return;
-        currentGroupName = group.name()
-        console.log(currentGroupName)
-        layer.add(resize_gr)
-        resize_gr.attachTo(group)
-        group.draggable(true)
-        var container = stage.container();
-        // make it focusable
-        container.tabIndex = 1;
-        // focus it
-        // also stage will be in focus on its click
-        container.focus();
-        container.addEventListener('keydown', function(e) {
-            if (e.keyCode === 27) {
-                resize_gr.detach()
-                btn_draw_shape.style.display = 'none';
-            } else if (e.keyCode === 46) {
-                console.log(group.getAbsoluteTransform())
-            } else {
-                return;
-            }
-            layer.batchDraw();
-        });
-
-        init_partner(group)
-
-
-    })
-
-
-
-    group.on('dragmove', (e) => {
-        rect_list.filter((f) => {
-            if (f.value == group.name()) {
-                f.position.x = group.getX()
-                f.position.y = group.getY()
-                console.log(f.position)
-            }
-        })
-
-        arr_dif.setPoints([get_from_pos.position.x + 51, get_from_pos.position.y + get_last_position_arrow - 70, get_to_pos.position.x + 51, get_from_pos.position.y + get_last_position_arrow - 70]);
-        simpleLabel.position({
-            x: points_diff,
-            y: get_from_pos.position.y + get_last_position_arrow - 85,
-
-        });
-        layer.draw();
-    })
-
-
-    group.on("contextmenu", (e) => {
-        e.evt.preventDefault()
-
-        var _ul = document.createElement('ul')
-        _ul.className = "dropdown-menu"
-        _ul.id = "menu"
-        _ul.style.display = "none"
-        _ul.style.position = "absolute"
-        document.body.appendChild(_ul)
-
-        var li_copy = document.createElement('li')
-        var a_copy = document.createElement('a')
-        a_copy.id = "btn_copy"
-        a_copy.className = "dropdown-item"
-        a_copy.innerText = "Copy"
-        a_copy.href = "#"
-        li_copy.appendChild(a_copy)
-
-        var li_cut = document.createElement('li')
-        var a_cut = document.createElement('a')
-        a_cut.id = "btn_cut"
-        a_cut.className = "dropdown-item"
-        a_cut.innerText = "Cut"
-        a_cut.href = "#"
-        li_cut.appendChild(a_cut)
-
-        var li_paste = document.createElement('li')
-        var a_paste = document.createElement('a')
-        a_paste.id = "btn_paste"
-        a_paste.className = "dropdown-item"
-        a_paste.innerText = "Paste"
-        a_paste.href = "#"
-        li_paste.appendChild(a_paste)
-
-        var li_delete = document.createElement('li')
-        var a_delete = document.createElement('a')
-        a_delete.id = "btn_delete"
-        a_delete.className = "dropdown-item"
-        a_delete.innerText = "Delete"
-        a_delete.href = "#"
-        li_delete.appendChild(a_delete)
-
-        _ul.appendChild(li_copy)
-        _ul.appendChild(li_cut)
-        _ul.appendChild(li_paste)
-        _ul.appendChild(li_delete)
-
-
-        li_delete.addEventListener('click', () => {
-            group.destroy()
-            resize_gr.destroy()
-            arr_dif.destroy()
-            grp_array.destroy()
-            btn_draw_shape.style.display = 'none';
-            // remove shape of rect_list
-            rect_list.filter((fil) => {
-                if (fil.id === e.target.attrs.id) {
-                    const index = rect_list.indexOf(fil)
-                    rect_list.splice(index, 1)
-                }
-
-            })
-
-        })
-
-        if (e.target === stage) {
-            return;
-        } else {
-            _ul.style.display = 'initial';
-            var containerRect = stage.container().getBoundingClientRect();
-            _ul.style.top =
-                containerRect.top + stage.getPointerPosition().y + 4 + 'px';
-            _ul.style.left =
-                containerRect.left + stage.getPointerPosition().x + 4 + 'px';
-        }
-
-
-
-        window.addEventListener('click', () => {
-            _ul.style.display = 'none'
-        })
-
-    })
-
-    group.on('dblclick', (ev) => {
-
-        group.getChildren((node) => {
-            if (node.getClassName() === 'Text') {
-                // get name of shape
-                swal("Enter Name", {
-                    content: {
-                        element: "input",
-                        attributes: {
-                            placeholder: "Name",
-                            type: "text",
-                        },
-                    },
-                    buttons: {
-                        cancel: true,
-                        confirm: true,
-                    },
-                }).then(value => {
-                    node.text(value)
-                })
-            }
-        })
-
-    })
-
-
-    stage.add(layer)
-    stage.on('click', (e) => {
-        if (e.target.parent == null) {
-            resize_gr.remove()
-            group.draggable(false)
-            btn_draw_shape.style.display = 'none'
-                // send_form.style.display = 'none'
-
-        }
-    })
-
-    // create_note(group)
-
-
-    var input_reciver = $('input[name=reciver]').tagify({
-            whitelist: ["h(a,b)", "m(c,d)"]
-        })
-        .on('add', function(e, tagName) {
-            console.log('JQEURY EVENT: ', 'added', tagName)
-        })
-        .on("invalid", function(e, tagName) {
-            console.log('JQEURY EVENT: ', "invalid", e, ' ', tagName);
-        });
-    var jqTagify = input_reciver.data('tagify');
-    var input_def = $('input[name=define]').tagify({
-            whitelist: ["h(a,b)", "m(c,d)"]
-        })
-        .on('add', function(e, tagName) {
-            console.log('JQEURY EVENT: ', 'added', tagName)
-        })
-        .on("invalid", function(e, tagName) {
-            console.log('JQEURY EVENT: ', "invalid", e, ' ', tagName);
-        });
-    var jqTagify_1 = input_def.data('tagify');
-    var input_params = $('input[name=parametrs]').tagify({
-            whitelist: ["h(a,b)", "m(c,d)"]
-        })
-        .on('add', function(e, tagName) {
-            console.log('JQEURY EVENT: ', 'added', tagName)
-        })
-        .on("invalid", function(e, tagName) {
-            console.log('JQEURY EVENT: ', "invalid", e, ' ', tagName);
-        });
-    var jqTagify_2 = input_params.data('tagify');
-
-
-    var btn_param = getFormId()
-    var obj_partner = {}
-    btn_param.addEventListener('click', (e) => {
-
-        if (NotEmpty(obj_partner))
-            obj_partner = {}
-
-        // console.log("send_list ==> ", send_list)
-
-
-        // obj_partner.partnerName = group.name()
-
-        obj_partner.reciver = jQuery.parseJSON(input_reciver.val())
-        obj_partner.reciver = obj_partner.reciver.map(function(elem) {
-            return elem.value;
-        }).join(",")
-        obj_partner.define = jQuery.parseJSON(input_def.val())
-        obj_partner.define = obj_partner.define.map(function(elem) {
-            return elem.value;
-        }).join(",")
-        obj_partner.params = jQuery.parseJSON(input_params.val())
-        obj_partner.params = obj_partner.params.map(function(elem) {
-            return elem.value;
-        }).join(",")
-
-        obj_partner.partnerName = group.name()
-
-        send_list.push(obj_partner)
-        console.log(send_list)
-
-        create_note(group, obj_partner)
-
-
-        // console.log("x Line => ", line.points()[1])
-        // console.log("y Line => ", line.points())
-
-        $('#staticBackdrop').modal('toggle')
-
-
-    })
-    $('#submit_btn').on('click', jqTagify.removeAllTags.bind(jqTagify))
-    $('#submit_btn').on('click', jqTagify_1.removeAllTags.bind(jqTagify_1))
-    $('#submit_btn').on('click', jqTagify_2.removeAllTags.bind(jqTagify_2))
-}
 // }
 
 var opt = document.getElementById('options')
+var opt_note = document.getElementById('options_note')
 var delete_shape = document.getElementById('btnradio3')
     //------------------------------------btn draw arrow -----------------------------------
 var btn_draw_shape = document.createElement('button')
@@ -418,294 +127,12 @@ btn_draw_shape.append(icon_btn)
 // class Note {
 
 //---------------------------------send form------------------------------------------------
-function init_partner(group) {
-    var send_form = document.createElement('form')
-    send_form.id = 'send_form'
-    document.body.appendChild(send_form)
-    send_form.style.width = '460px'
-    send_form.style.height = '310px'
-    send_form.style.display = 'none';
-    send_form.style.position = 'absolute'
-    send_form.style.backgroundColor = '#ffff';
-    send_form.style.boxShadow = 'rgba(0, 0, 0, 0.1) 0px 10px 50px'
 
-    //----------------------------------reciver-----------------------------------------------
-
-    var reciver_div = document.createElement('div')
-    reciver_div.classList = "input-group p-2"
-
-    var span_reciver = document.createElement('span')
-    span_reciver.className = "input-group-text"
-    span_reciver.textContent = "Reciver"
-
-    var reciver_name = document.createElement('input');
-    reciver_name.id = "reciver_name"
-    reciver_name.className = "form-control tagin"
-    reciver_name.setAttribute("placeholder", "reciver");
-    reciver_name.setAttribute("data-separator", " ")
-    reciver_name.setAttribute("data-enter", "true")
-
-    reciver_div.appendChild(span_reciver)
-    reciver_div.appendChild(reciver_name)
-
-    //------------------------------define-------------------------------------------------
-
-
-    var define_div = document.createElement('div')
-    define_div.classList = "input-group p-2"
-
-    var span_define = document.createElement('span')
-    span_define.className = "input-group-text"
-    span_define.textContent = "Define"
-
-    var define_name = document.createElement('input');
-    define_name.id = "define_name"
-    define_name.className = "form-control tagin"
-    define_name.setAttribute("placeholder", "define");
-    define_name.setAttribute("data-separator", " ")
-    define_name.setAttribute("data-enter", "true")
-
-    define_div.appendChild(span_define)
-    define_div.appendChild(define_name)
-
-
-    //------------------------------params-------------------------------------------------
-
-
-    var params_div = document.createElement('div')
-    params_div.classList = "input-group p-2"
-
-    var span_params = document.createElement('span')
-    span_params.className = "input-group-text"
-    span_params.textContent = "Parametrs"
-
-    var params_name = document.createElement('input');
-    params_name.id = "params_name"
-    params_name.className = "form-control tagin"
-    params_name.setAttribute("placeholder", "parametrs");
-    params_name.setAttribute("data-separator", " ")
-    params_name.setAttribute("data-enter", "true")
-
-    params_div.appendChild(span_params)
-    params_div.appendChild(params_name)
-
-
-    //------------------------------btn submit-------------------------------------------------
-    var btn_div = document.createElement('div')
-    btn_div.className = "m-2 p-2 d-grid gap-2"
-
-    var btn_submit = document.createElement('button')
-    btn_submit.innerHTML = 'submit'
-    btn_submit.style.boxShadow = "0 2px 5px 0 rgba(0, 0, 0, .2), 0 2px 10px 0 rgba(0, 0, 0, .1)"
-    btn_submit.className = 'btn btn-primary'
-
-    btn_div.appendChild(btn_submit)
-
-    send_form.appendChild(reciver_div)
-    send_form.appendChild(define_div)
-    send_form.appendChild(params_div)
-    send_form.appendChild(btn_div)
-
-
-
-
-
-
-    // var mymodal = $('#initial');
-    // mymodal.modal('show');
-
-
-
-    btn_submit.addEventListener('click', (e) => {
-        var val_from = from_node.value
-        var val_to = to_node.value
-        var val_msg = message_node.value
-
-        if (val_from == '' || val_to == '' || val_msg == '') {
-            console.log("Please Enter name")
-            from_node.style.border = '1px solid #d91e1e'
-            to_node.style.border = '1px solid #d91e1e'
-            message_node.style.border = '1px solid #d91e1e'
-                // btn_submit.className = 'btn btn-primary disabled'
-        } else {
-            send_form.style.display = 'none';
-            // btn_submit.classList.remove = 'disabled'
-            var list_shape_arrow = []
-            for (var i = 0; i < rect_list.length; i++) {
-                if (rect_list[i].value == val_from) {
-                    get_from_pos = rect_list[i]
-                    list_shape_arrow.push(get_from_pos)
-                        // console.log("1 ==> ", get_from_pos)
-
-                }
-                if (rect_list[i].value == val_to) {
-                    get_to_pos = rect_list[i]
-                    list_shape_arrow.push(get_to_pos)
-                        // console.log("2 ==> ", get_to_pos)
-                }
-
-            }
-
-
-
-
-            if (get_from_pos.value !== get_to_pos.value) {
-                arr_dif = new Konva.Arrow({
-                    fill: 'black',
-                    stroke: 'black',
-                });
-                arr_dif.points([get_from_pos.position.x + 51, get_from_pos.position.y + get_last_position_arrow, get_to_pos.position.x + 51, get_from_pos.position.y + get_last_position_arrow])
-
-                points_diff = Math.abs((get_to_pos.position.x - get_from_pos.position.x))
-
-                simpleLabel = new Konva.Label({
-                    opacity: 0.75,
-                    draggable: true
-                });
-
-                simpleLabel.position({
-                    x: points_diff,
-                    y: get_from_pos.position.y + get_last_position_arrow - 15,
-
-                });
-
-                simpleLabel.add(
-                    new Konva.Tag({
-                        fill: 'yellow',
-                    })
-                );
-                simpleLabel.add(
-                    new Konva.Text({
-                        x: points_diff,
-                        y: get_from_pos.position.y + get_last_position_arrow - 15,
-                        text: val_msg,
-                        fontFamily: 'Calibri',
-                        fontSize: 18,
-                        padding: 5,
-                        fill: 'black',
-                    })
-                );
-                // layer.add(simpleLabel)
-                console.log(arr_dif.absolutePosition())
-                grp_array.add(arr_dif, simpleLabel)
-                layer.add(grp_array)
-                layer.draw();
-
-                // this.text_label(stage, layer, points_diff, get_from_pos.position.y + get_last_position_arrow - 15, val_msg, grp_array)
-                get_last_position_arrow += 70
-            } else {
-
-                simpleLabel = new Konva.Label({
-                    opacity: 0.75,
-                    draggable: true
-                });
-
-                arr_dif = new Konva.Arrow({
-                    fill: 'black',
-                    stroke: 'black',
-                });
-                arr_dif.points([get_from_pos.position.x + 50, get_from_pos.position.y + get_last_position_arrow, get_from_pos.position.x + 110, get_from_pos.position.y + get_last_position_arrow, get_from_pos.position.x + 110, get_from_pos.position.y + get_last_position_arrow + 30, get_from_pos.position.x + 50, get_from_pos.position.y + get_last_position_arrow + 30])
-                simpleLabel.add(
-                    new Konva.Text({
-                        x: points_diff,
-                        y: get_from_pos.position.y + get_last_position_arrow - 15,
-                        text: val_msg,
-                        fontFamily: 'Calibri',
-                        fontSize: 18,
-                        padding: 5,
-                        fill: 'black',
-                    })
-                );
-                console.log(arr_dif.points()[2])
-                    // this.text_label(stage, layer, points_diff, get_from_pos.position.y + get_last_position_arrow - 15, val_msg, grp_array)
-                grp_array.add(arr_dif, simpleLabel)
-                layer.add(grp_array)
-                layer.draw();
-                get_last_position_arrow += 70
-
-
-            }
-
-            // layer.add(arr_dif);
-
-            get_from_pos.counter_arrow++;
-            get_from_pos.msg.message = val_msg
-            get_from_pos.msg.actions = get_from_pos.value + "->" + get_to_pos.value
-                // get_to_pos.actions.push(get_to_pos.value + "<-" + get_from_pos.value)
-
-            from_node.value = ''
-            to_node.value = ''
-            message_node.value = ''
-            list_shape_arrow = []
-
-            // layer.on('dragmove', (e) => {
-            //     // t = stage.find('Transformer');
-            //     console.log("-=-=-=-", e.target.children[2]._partialText)
-            //         // console.log("-=-=-=-", t)
-            // })
-
-            console.log(rect_list)
-
-
-
-        }
-    })
-
-
-}
 var data_input = ''
 
 
 
-function create_note(group, obj_partner) {
 
-    let note_group = new Konva.Group({
-        // x: containerRect.top + stage.getPointerPosition().y + 10,
-        // y: containerRect.left + stage.getPointerPosition().x + 20,
-        width: 130,
-        height: 25,
-        // rotation: angle,
-        draggable: true,
-    });
-
-    note_group.add(new Konva.Rect({
-        width: 150,
-        height: 150,
-        fill: '#fdfd80',
-        shadowOpacity: 0.4,
-        shadowBlur: 2,
-        cornerRadius: [0, 0, 10, 0],
-        shadowColor: 'black',
-        shadowOffset: {
-            x: 1,
-            y: 1
-        },
-        strokeWidth: 4,
-    }));
-
-    console.log("send_list ==> ", send_list)
-
-    let text_note = new Konva.Text({
-        text: "definitions: " + obj_partner.define + "\n" + "parameters: " + obj_partner.params,
-        fontSize: 18,
-        fontStyle: "italic",
-        fontFamily: 'Calibri',
-        fill: '#000',
-        width: 130,
-        padding: 5,
-        align: 'center'
-    })
-    note_group.add(text_note);
-    // text_note.text("definitions: " + define + "\n" + "parameters: " + params)
-
-
-    note_group.absolutePosition({
-        x: group.getX() - 150,
-        y: group.getY() + 60
-    })
-    layer.add(note_group)
-
-}
 
 //---------------------------------Arrow-----------------------------------------------------//
 
@@ -1130,511 +557,14 @@ function free_drawing(stage, layer, mode = null, state) {
 }
 //-------------------------------------------------------------------------------------------//
 
-// Get the current frame's height and width:
-var width = document.getElementById('container').offsetWidth;
-var height = document.getElementById('container').offsetHeight;
-var GUIDELINE_OFFSET = 5;
 
-var stage = new Konva.Stage({
-    container: "container",
-    width: 3000,
-    height: 3000
-});
-var layer = new Konva.Layer();
-var i = 1;
-var j = 1;
-var x = 50
-var y = 10;
-var tex = 200;
-var blockSnapSize = 30;
+// var json = stage.toJSON();
 
-// var gridLayer = new Konva.Layer();
-// var padding = blockSnapSize;
-// console.log(width, padding, width / padding);
-// for (var i = 0; i < width / padding; i++) {
-//     gridLayer.add(new Konva.Line({
-//         points: [Math.round(i * padding) + 0.5, 0, Math.round(i * padding) + 0.5, height],
-//         stroke: '#ddd',
-//         strokeWidth: 1,
-//     }));
-// }
-
-// gridLayer.add(new Konva.Line({ points: [0, 0, 10, 10] }));
-// for (var j = 0; j < height / padding; j++) {
-//     gridLayer.add(new Konva.Line({
-//         points: [0, Math.round(j * padding), width, Math.round(j * padding)],
-//         stroke: '#ddd',
-//         strokeWidth: 0.5,
-//     }));
-// }
-
-// stage.add(gridLayer);
-
-stage.add(layer)
-
-var json = stage.toJSON();
-//----------------------- snap shapes ----------------------
-
-function getLineGuideStops(skipShape) {
-    // we can snap to stage borders and the center of the stage
-    var vertical = [0, stage.width() / 2, stage.width()];
-    var horizontal = [0, stage.height() / 2, stage.height()];
-
-    // and we snap over edges and center of each object on the canvas
-    stage.find('.object').forEach((guideItem) => {
-        if (guideItem === skipShape) {
-            return;
-        }
-        var box = guideItem.getClientRect();
-        // and we can snap to all edges of shapes
-        vertical.push([box.x, box.x + box.width, box.x + box.width / 2]);
-        horizontal.push([box.y, box.y + box.height, box.y + box.height / 2]);
-    });
-    return {
-        vertical: vertical.flat(),
-        horizontal: horizontal.flat(),
-    };
-}
-
-function getObjectSnappingEdges(node) {
-    var box = node.getClientRect();
-    var absPos = node.absolutePosition();
-
-    return {
-        vertical: [{
-                guide: Math.round(box.x),
-                offset: Math.round(absPos.x - box.x),
-                snap: 'start',
-            },
-            {
-                guide: Math.round(box.x + box.width / 2),
-                offset: Math.round(absPos.x - box.x - box.width / 2),
-                snap: 'center',
-            },
-            {
-                guide: Math.round(box.x + box.width),
-                offset: Math.round(absPos.x - box.x - box.width),
-                snap: 'end',
-            },
-        ],
-        horizontal: [{
-                guide: Math.round(box.y),
-                offset: Math.round(absPos.y - box.y),
-                snap: 'start',
-            },
-            {
-                guide: Math.round(box.y + box.height / 2),
-                offset: Math.round(absPos.y - box.y - box.height / 2),
-                snap: 'center',
-            },
-            {
-                guide: Math.round(box.y + box.height),
-                offset: Math.round(absPos.y - box.y - box.height),
-                snap: 'end',
-            },
-        ],
-    };
-}
-
-function getGuides(lineGuideStops, itemBounds) {
-    var resultV = [];
-    var resultH = [];
-
-    lineGuideStops.vertical.forEach((lineGuide) => {
-        itemBounds.vertical.forEach((itemBound) => {
-            var diff = Math.abs(lineGuide - itemBound.guide);
-            // if the distance between guild line and object snap point is close we can consider this for snapping
-            if (diff < GUIDELINE_OFFSET) {
-                resultV.push({
-                    lineGuide: lineGuide,
-                    diff: diff,
-                    snap: itemBound.snap,
-                    offset: itemBound.offset,
-                });
-            }
-        });
-    });
-
-    lineGuideStops.horizontal.forEach((lineGuide) => {
-        itemBounds.horizontal.forEach((itemBound) => {
-            var diff = Math.abs(lineGuide - itemBound.guide);
-            if (diff < GUIDELINE_OFFSET) {
-                resultH.push({
-                    lineGuide: lineGuide,
-                    diff: diff,
-                    snap: itemBound.snap,
-                    offset: itemBound.offset,
-                });
-            }
-        });
-    });
-
-    var guides = [];
-
-    // find closest snap
-    var minV = resultV.sort((a, b) => a.diff - b.diff)[0];
-    var minH = resultH.sort((a, b) => a.diff - b.diff)[0];
-    if (minV) {
-        guides.push({
-            lineGuide: minV.lineGuide,
-            offset: minV.offset,
-            orientation: 'V',
-            snap: minV.snap,
-        });
-    }
-    if (minH) {
-        guides.push({
-            lineGuide: minH.lineGuide,
-            offset: minH.offset,
-            orientation: 'H',
-            snap: minH.snap,
-        });
-    }
-    return guides;
-}
-
-function drawGuides(guides) {
-    guides.forEach((lg) => {
-        if (lg.orientation === 'H') {
-            var line = new Konva.Line({
-                points: [-6000, 0, 6000, 0],
-                stroke: 'rgb(0, 161, 255)',
-                strokeWidth: 1,
-                name: 'guid-line',
-                dash: [4, 6],
-            });
-            layer.add(line);
-            line.absolutePosition({
-                x: 0,
-                y: lg.lineGuide,
-            });
-        } else if (lg.orientation === 'V') {
-            var line = new Konva.Line({
-                points: [0, -6000, 0, 6000],
-                stroke: 'rgb(0, 161, 255)',
-                strokeWidth: 1,
-                name: 'guid-line',
-                dash: [4, 6],
-            });
-            layer.add(line);
-            line.absolutePosition({
-                x: lg.lineGuide,
-                y: 0,
-            });
-        }
-    });
-}
-
-layer.on('dragmove', function(e) {
-    // clear all previous lines on the screen
-    layer.find('.guid-line').forEach((l) => l.destroy());
-
-    // find possible snapping lines
-    var lineGuideStops = getLineGuideStops(e.target);
-    // find snapping points of current object
-    var itemBounds = getObjectSnappingEdges(e.target);
-
-    // now find where can we snap current object
-    var guides = getGuides(lineGuideStops, itemBounds);
-
-    // do nothing of no snapping
-    if (!guides.length) {
-        return;
-    }
-
-    drawGuides(guides);
-
-    var absPos = e.target.absolutePosition();
-    // now force object position
-    guides.forEach((lg) => {
-        switch (lg.snap) {
-            case 'start':
-                {
-                    switch (lg.orientation) {
-                        case 'V':
-                            {
-                                absPos.x = lg.lineGuide + lg.offset;
-                                break;
-                            }
-                        case 'H':
-                            {
-                                absPos.y = lg.lineGuide + lg.offset;
-                                break;
-                            }
-                    }
-                    break;
-                }
-            case 'center':
-                {
-                    switch (lg.orientation) {
-                        case 'V':
-                            {
-                                absPos.x = lg.lineGuide + lg.offset;
-                                break;
-                            }
-                        case 'H':
-                            {
-                                absPos.y = lg.lineGuide + lg.offset;
-                                break;
-                            }
-                    }
-                    break;
-                }
-            case 'end':
-                {
-                    switch (lg.orientation) {
-                        case 'V':
-                            {
-                                absPos.x = lg.lineGuide + lg.offset;
-                                break;
-                            }
-                        case 'H':
-                            {
-                                absPos.y = lg.lineGuide + lg.offset;
-                                break;
-                            }
-                    }
-                    break;
-                }
-        }
-    });
-    e.target.absolutePosition(absPos);
-});
-
-layer.on('dragend', function(e) {
-    // clear all previous lines on the screen
-    layer.find('.guid-line').forEach((l) => l.destroy());
-});
-
-//---------------------------------------------------------
 let currentShape;
 
-function menuBar(stage, groupNode, trans = null, btn_tools = null) {
 
 
 
-    var _ul = document.createElement('ul')
-    _ul.className = "dropdown-menu"
-    _ul.id = "menu"
-    _ul.style.display = "none"
-    _ul.style.position = "absolute"
-    document.body.appendChild(_ul)
-
-    var li_copy = document.createElement('li')
-    var a_copy = document.createElement('a')
-    a_copy.id = "btn_copy"
-    a_copy.className = "dropdown-item"
-    a_copy.innerText = "Copy"
-    a_copy.href = "#"
-    li_copy.appendChild(a_copy)
-
-    var li_cut = document.createElement('li')
-    var a_cut = document.createElement('a')
-    a_cut.id = "btn_cut"
-    a_cut.className = "dropdown-item"
-    a_cut.innerText = "Cut"
-    a_cut.href = "#"
-    li_cut.appendChild(a_cut)
-
-    var li_paste = document.createElement('li')
-    var a_paste = document.createElement('a')
-    a_paste.id = "btn_paste"
-    a_paste.className = "dropdown-item"
-    a_paste.innerText = "Paste"
-    a_paste.href = "#"
-    li_paste.appendChild(a_paste)
-
-    var li_delete = document.createElement('li')
-    var a_delete = document.createElement('a')
-    a_delete.id = "btn_delete"
-    a_delete.className = "dropdown-item"
-    a_delete.innerText = "Delete"
-    a_delete.href = "#"
-    li_delete.appendChild(a_delete)
-
-    _ul.appendChild(li_copy)
-    _ul.appendChild(li_cut)
-    _ul.appendChild(li_paste)
-    _ul.appendChild(li_delete)
-
-    const tr = trans.nodes()
-
-    // console.log("gr => ", groupNode)
-
-
-    li_delete.addEventListener('click', () => {
-
-
-    })
-
-    var container = stage.container();
-
-    // make it focusable
-
-    container.tabIndex = 1;
-    // focus it
-    // also stage will be in focus on its click
-    container.focus();
-
-
-    container.addEventListener('keydown', function(e) {
-        if (e.keyCode === 27) {
-            console.log("27")
-        } else if (e.keyCode === 46) {
-            tr = layer.find('Transformer').find(tr => tr.nodes()[0] === currentShape);
-            // layer.find
-            if (tr != null) {
-                tr.remove()
-                currentShape.destroy()
-            }
-
-        } else if (e.keyCode === 39) {
-            console.log("39")
-        } else if (e.keyCode === 40) {
-            console.log("40")
-        } else {
-            return;
-        }
-        e.preventDefault();
-        layer.batchDraw();
-    });
-
-    window.addEventListener('click', () => {
-        _ul.style.display = 'none'
-    })
-
-    stage.on('contextmenu', (e) => {
-
-        e.evt.preventDefault()
-            // var id_rect_selection = layer.children[0].attrs.id
-            // console.log(rect_list)
-            // console.log(layer.find('Group'))
-
-
-        if (e.target === stage) {
-            return;
-        }
-
-        // console.log(stage.find('Transformer'))
-
-        currentShape = e.target;
-        // console.log("1 ==>", e.target)
-
-        // shape = e.target
-        _ul.style.display = 'initial';
-        var containerRect = stage.container().getBoundingClientRect();
-        _ul.style.top =
-            containerRect.top + stage.getPointerPosition().y + 4 + 'px';
-        _ul.style.left =
-            containerRect.left + stage.getPointerPosition().x + 4 + 'px';
-    })
-}
-
-//---------------------------------form------------------------------------------------
-
-var init_partner_form = document.createElement('section')
-init_partner_form.id = 'init_partner_form'
-document.body.appendChild(init_partner_form)
-init_partner_form.style.width = '430px'
-init_partner_form.style.height = '310px'
-init_partner_form.style.display = 'none';
-init_partner_form.style.position = 'absolute'
-init_partner_form.style.backgroundColor = '#ffff';
-init_partner_form.style.boxShadow = 'rgba(0, 0, 0, 0.1) 0px 10px 50px'
-
-//----------------------------------From-----------------------------------------------
-
-var partner_div = document.createElement('div')
-partner_div.classList = "input-group p-2"
-
-var span_name = document.createElement('span')
-span_name.className = "input-group-text"
-span_name.textContent = "name"
-
-var partner_name = document.createElement('input');
-partner_name.id = "partner_name"
-partner_name.className = "form-control"
-partner_name.setAttribute("placeholder", "Name");
-partner_name.name = "name"
-
-partner_div.appendChild(span_name)
-partner_div.appendChild(partner_name)
-
-//------------------------------to-------------------------------------------------
-
-var sym_div = document.createElement('div')
-sym_div.classList = "input-group p-2"
-
-var span_sym = document.createElement('span')
-span_sym.className = "input-group-text"
-span_sym.textContent = "Sym"
-
-var sym_input = document.createElement('input');
-sym_input.className = "form-control"
-sym_input.setAttribute("placeholder", "Add a sym key");
-sym_input.name = "sym"
-
-sym_div.appendChild(span_sym)
-sym_div.appendChild(sym_input)
-
-
-
-var Asym_div = document.createElement('div')
-Asym_div.classList = "input-group p-2"
-
-var span_Asym = document.createElement('span')
-span_Asym.className = "input-group-text"
-span_Asym.textContent = "Asym"
-
-var Asym_input = document.createElement('input');
-Asym_input.className = "form-control"
-Asym_input.setAttribute("placeholder", "Add a Asym key");
-Asym_input.name = "Asym"
-
-Asym_div.appendChild(span_Asym)
-Asym_div.appendChild(Asym_input)
-
-//------------------------------msg-------------------------------------------------
-
-var title_keys = document.createElement('div')
-title_keys.innerHTML = "Keys"
-title_keys.className = "center_element custom_title"
-
-//------------------------------btn submit-------------------------------------------------
-var btn_partner_div = document.createElement('div')
-btn_partner_div.className = "m-2 p-2 d-grid gap-2"
-
-var btn_sub = document.createElement('button')
-btn_sub.innerHTML = 'Submit'
-btn_sub.id = "btn_sub"
-btn_sub.style.boxShadow = "0 2px 5px 0 rgba(0, 0, 0, .2), 0 2px 10px 0 rgba(0, 0, 0, .1)"
-btn_sub.className = 'btn btn-primary'
-
-btn_partner_div.appendChild(btn_sub)
-
-init_partner_form.appendChild(partner_div)
-init_partner_form.appendChild(title_keys)
-init_partner_form.appendChild(sym_div)
-init_partner_form.appendChild(Asym_div)
-init_partner_form.appendChild(btn_partner_div)
-
-
-
-btn_sub.addEventListener('click', (e) => {
-    var obj_kes = {}
-    let sym = sym_input.value
-    let Asym = Asym_input.value
-
-    obj_kes.sym = sym
-    obj_kes.Asym = Asym
-
-    init_list.push(obj_kes)
-
-
-    console.log(init_list)
-})
-
-//-------------------------------------------------------------------------------------------//
 
 var shape_id = ''
 var parent_shape = document.getElementById('parent-shape').addEventListener('dragstart', (e) => {
@@ -1648,6 +578,8 @@ function tst() {
     var partner = new RectNode()
 
 }
+
+var params_dictinary = []
 
 container.addEventListener('dragover', (e) => {
     e.preventDefault()
@@ -1667,36 +599,74 @@ var btn_ = document.getElementById('btn_init')
 var frm = document.getElementById('init-form')
 var arrow_list = []
 
-function create_arrow(connect_node, distance_partner) {
-    var arrow_distance = new Konva.Arrow({
-        x: connect_node.from.getX,
-        // y: arrow_list.length === 0 ? connect_node.from.getY : arrow_list.splice(-1)[0].arrow.attrs.y - 70,
-        y: connect_node.from.getY,
-        points: [connect_node.to.bar.points[0], connect_node.from.getY + 40, distance_partner, connect_node.from.getY + 40],
-        // points: [connect_node.to.bar.points[0], arrow_list.length === 0 ? connect_node.from.getY + 40 : arrow_list.splice(-1)[0].arrow.attrs.y + 30, distance_partner, arrow_list.length === 0 ? connect_node.from.getY + 40 : arrow_list.splice(-1)[0].arrow.attrs.y + 30],
-        pointerLength: 10,
-        pointerWidth: 10,
-        fill: 'black',
-        stroke: 'black',
-        strokeWidth: 2
-    });
 
-    layer.add(arrow_distance)
-    return arrow_distance
+// ---------------------------------new code ---------------------------------------------//
+function add_element_to_array_if_not_exist(array, partner_list, element, val, resolve = null, labelName) {
+    var flag = false
+    if (array.length !== 0) {
+        array.forEach(a => {
+            if (a.children[2].attrs.text === val) {
+                flag = true
+                if (resolve != null) {
+                    resolve('Name already exist !')
+
+                }
+                return
+            } else if (a.attrs.id === element.attrs.id && flag == false) {
+                flag = true
+                element.add(labelName)
+                labelName.text(val)
+                var measure_text = labelName.measureSize(labelName.text())
+                labelName.absolutePosition({
+                    x: element.attrs.x - (measure_text.width / 2) + (element.children[1].attrs.width / 2) - 5,
+                    y: element.attrs.y - (measure_text.height / 2) + (element.children[1].attrs.height / 2) - 5,
+                })
+                if (resolve != null) {
+                    resolve()
+                }
+            }
+
+        })
+    }
+    if (array.length === 0 || flag == false) {
+        array.push(element)
+        element.add(labelName)
+
+        labelName.text(val)
+        var measure_text = labelName.measureSize(labelName.text())
+        labelName.absolutePosition({
+            x: element.attrs.x - (measure_text.width / 2) + (element.children[1].attrs.width / 2) - 5,
+            y: element.attrs.y - (measure_text.height / 2) + (element.children[1].attrs.height / 2) - 5,
+        })
+        array_json.push(element.toJSON())
+
+        if (resolve != null)
+            resolve()
+    }
+
+    // console.log(rect_list)
+    // console.log(create_tmp_partner_list())
 }
 
-container.addEventListener('drop', (e) => {
-    e.preventDefault()
-    stage.setPointersPositions(e)
+function create_tmp_partner_list() {
+    var tmp_partner_list = []
+    rect_list.forEach(rc => {
+        tmp_partner_list.push(rc.children[2].attrs.text)
+    })
+    return tmp_partner_list
+}
 
-    var arrow_distance = ''
-    var pos = stage.getPointerPosition()
-    if (shape_id == 'square') {
+function listToString(list) {
+    var str = '';
+    for (var i = 0; i < list.length; i++) {
+        str += list[i] + "\n";
+    }
+    return str;
+}
 
-
-
-
-        var rec = new Konva.Rect({
+function gn_obj() {
+    var general_obj_partner = {
+        rec: new Konva.Rect({
             width: 98,
             height: 50,
             fill: '#ffff',
@@ -1711,296 +681,181 @@ container.addEventListener('drop', (e) => {
             },
             cornerRadius: [5, 5, 5, 5],
             id: "rect" + count,
-        });
-
-        var line = new Konva.Line({
+        }),
+        line: new Konva.Line({
             points: [50, 50, 50, 220, 50, 460],
             stroke: 'black',
             strokeWidth: 3,
             lineJoin: 'round',
             dash: [33, 10],
             draggable: false,
-        });
-
-        var node = new Konva.Rect({
+        }),
+        node: new Konva.Rect({
             width: 7,
             height: 7,
             fill: null,
             stroke: 'blue',
             strokeWidth: 2,
-        });
-
-        var labelName =
-            new Konva.Text({
-                fontFamily: 'Calibri',
-                fontSize: 18,
-                padding: 5,
-                fill: 'black',
-                align: 'center',
-
-            })
-
-        var measure_text = labelName.measureSize(labelName.text())
-        line.on('mouseover', (e) => {
-            node.absolutePosition({
-                x: e.evt.layerX - 3,
-                y: e.evt.layerY
-            })
-
-            layer.add(node)
-
-        })
-        line.on('mouseleave', (e) => {
-            node.destroy()
-        })
-
-        var group = new Konva.Group({
+        }),
+        group: new Konva.Group({
             name: "partner" + partner_counter,
-            x: pos.x,
-            y: pos.y,
             rotation: 0,
             id: "rect" + count,
-        });
+        }),
+        labelName: new Konva.Text({
+            fontFamily: 'Calibri',
+            fontSize: 18,
+            padding: 5,
+            fill: 'black',
+            text: 'Partner' + partner_counter,
+            align: 'center',
 
-        group.add(line, rec)
-            // labelName.absolutePosition({
-            //     x: pos.x + 40 - (measure_text.width / 2),
-            //     y: pos.y + 20 - (measure_text.height / 2),
+        }),
 
-        // })
-        rec.on('mouseover', () => {
-            stage.container().style.cursor = 'pointer';
-        })
-        rec.on('mouseleave', () => {
-            stage.container().style.cursor = 'default';
-        })
-
-        var resize_gr = new Konva.Transformer({
+        resize_gr: new Konva.Transformer({
             ignoreStroke: true,
             borderDash: [3, 3],
             centeredScaling: true,
             rotationSnaps: [0, 90, 180, 270],
             padding: 5,
-        });
-        layer.add(resize_gr)
-        resize_gr.on('transform', (e) => {
-            resize_gr.setAttrs({
-                width: Math.max(group.width() * group.scaleX(), 5),
-                height: Math.max(group.height() * group.scaleY(), 5),
-                scaleX: 1,
-                scaleY: 1,
-            })
-        })
-        var grp_array = new Konva.Group({
-            rotation: 0,
-        });
+        }),
+        // resize_arrow: new Konva.Transformer({
+        //     ignoreStroke: true,
+        //     borderDash: [3, 3],
+        //     centeredScaling: true,
+        //     rotationSnaps: [0, 90, 180, 270],
+        //     padding: 5,
+        // }),
 
-        layer.add(group)
 
-        var resize_arrow = new Konva.Transformer({
-            ignoreStroke: true,
-            borderDash: [3, 3],
-            centeredScaling: true,
-            rotationSnaps: [0, 90, 180, 270],
+    }
+    return general_obj_partner
+}
+
+function not_new() {
+    var note_maker = {
+        text_note: new Konva.Text({
+            // text: obj_partner.define + "\n" + listToString(dict_params).trim("\n"),
+            fontSize: 13,
+            // fontStyle: "italic",
+            fontFamily: 'Calibri',
+            fill: '#000',
+            width: 130,
             padding: 5,
+            align: 'left'
+        }),
+
+        base_node: new Konva.Rect({
+            width: 165,
+            // height: text_note.height(),
+            fill: '#fdfd80',
+            shadowOpacity: 0.4,
+            shadowBlur: 2,
+            cornerRadius: [0, 0, 0, 0],
+            shadowColor: 'black',
+            shadowOffset: {
+                x: 1,
+                y: 1
+            },
+            strokeWidth: 4,
+        }),
+        // let cumputing_x = Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.from.getX - 110 : connect_node.from.getX + 60
+        note_group: new Konva.Group({
+            // x: cumputing_x,
+            // y: connect_node.arrow.attrs.y + 10,
+            width: 130,
+            height: 25,
+            draggable: true,
+            id: "note_" + arrow_count,
+            name: "note_" + arrow_count
         })
-        layer.add(resize_arrow);
-        var get_from_pos
-        var get_to_pos
-        var points_diff
-        var arr_dif
-        var simpleLabel
-        var obj_group = {}
+    }
+    return note_maker
+}
+
+function partnerEventHandler(obj, p = null) {
+
+    var pos = {}
+    if (p != null) {
+        pos = p
+    } else {
+        if (obj.group) {
+            pos.x = obj.group.attrs.x
+            pos.y = obj.group.attrs.y
+        }
+    }
+    if (obj.group) {
 
 
 
-        group.on('click', (e) => {
-            // console.log(e.target)
-            var containerRect = stage.container().getBoundingClientRect();
+        // if (obj.group.attrs.name.includes("partner")) {
+        //     console.log("name => ", obj.group.attrs)
+
+
+        obj.group.absolutePosition({
+            x: pos.x,
+            y: pos.y,
+        })
+        obj.group.add(obj.line, obj.rec, obj.labelName)
+        add_element_to_array_if_not_exist(rect_list, global_partner_list, obj.group, obj.labelName.text(), null, obj.labelName)
+
+        // if (pos.children) {
+
+        //     obj.labelName.text(pos.children[2].attrs.text)
+
+        // }
+        layer.add(obj.group)
+
+
+        obj.group.on('click', (e) => {
+            // console.log(global_partner_list.partners)
             opt.style.display = 'initial';
-
             if (!NotEmpty(obj_group)) {
                 opt.style.top =
-                    e.target.getClientRect().y + 75 + 'px';
-                // group.getAbsolutePosition().y + 80 + 'px';
+                    e.target.parent.attrs.y + 75 + 'px';
                 opt.style.left =
-                    e.target.getClientRect().x + 370 + 'px';
-                // group.getAbsolutePosition().x + 360 + 'px';
+                    e.target.parent.attrs.x + 370 + 'px';
                 opt.addEventListener('click', () => {
                     opt.style.display = 'none';
-                    // send_form.style.display = 'initial';
-                    // var containerRect = stage.container().getBoundingClientRect();
-                    // send_form.style.top =
-                    //     containerRect.top + stage.getPointerPosition().y + 10 + 'px';
-                    // send_form.style.left =
-                    //     containerRect.left + stage.getPointerPosition().x + 20 + 'px';
-
                 })
             } else {
-
                 opt.style.display = 'initial';
                 opt.style.top =
                     obj_group.y + 75 + 'px';
-                // group.getAbsolutePosition().y + 80 + 'px';
                 opt.style.left =
                     obj_group.x + 370 + 'px';
-                // group.getAbsolutePosition().x + 360 + 'px';
                 opt.addEventListener('click', () => {
                     opt.style.display = 'none';
-                    // send_form.style.display = 'initial';
-                    // var containerRect = stage.container().getBoundingClientRect();
-                    // send_form.style.top =
-                    //     containerRect.top + stage.getPointerPosition().y + 10 + 'px';
-                    // send_form.style.left =
-                    //     containerRect.left + stage.getPointerPosition().x + 20 + 'px';
-
                 })
             }
-            // console.log(e.target)
-
-            // delete_shape.addEventListener('click', () => {
-            //     console.log(";sc;,c;s,c;s,c;", e.target)
-
-            //     // rect_list.filter((fil) => {
-            //     //     if (fil.attrs.id === e.target.parent.attrs.id) {
-            //     //         var index = rect_list.indexOf(fil)
-            //     //         console.log(index)
-            //     //             // rect_list.splice(index, 1)
-            //     //     }
-            //     //     e.target.parent.destroy()
-            //     //         // arrow_list.forEach((a) => {
-            //     //         //     if (fil.attrs.name === a.from.name || fil.attrs.name === a.to.name) {
-            //     //         //         const idx = arrow_list.indexOf(a)
-            //     //         //         arrow_list.splice(idx, 1)
-            //     //         //         arrow_distance.destroy()
-            //     //         //         note_group.destroy()
-
-            //     //     //     }
-            //     //     // })
-
-
-            //     //     // console.log(fil)
-
-            //     // })
-
-            //     // resize_gr.destroy()
-            //     //     // arr_dif.destroy()
-            //     //     // grp_array.destroy()
-            //     // opt.style.display = "none"
-
-
-
-
-
-            //     // resize_gr.nodes([])
-            //     // e.target.parent.destroy()
-            //     // console.log(e.target.parent)
-            //     // resize_gr.destroy()
-
-            //     // e.target.parent.destroy()
-
-            //     // console.log("11111111111> ", rect_list)
-            //     // arr_dif.destroy()
-            //     // grp_array.destroy()
-            //     // btn_draw_shape.style.display = 'none';
-            //     // remove shape of rect_list
-            //     // rect_list.filter((fil) => {
-            //     //     if (fil.id === e.target.attrs.id) {
-            //     //         const index = rect_list.indexOf(fil)
-            //     //         rect_list.splice(index, 1)
-            //     //     }
-
-            //     //     arrow_list.forEach((a) => {
-            //     //         if (fil.attrs.name === a.from.name || fil.attrs.name === a.to.name) {
-            //     //             const idx = arrow_list.indexOf(a)
-            //     //             arrow_list.splice(idx, 1)
-            //     //             arrow_distance.destroy()
-            //     //             note_group.destroy()
-
-            //     //         }
-            //     //     })
-
-            //     // })
-
-            //     // console.log("0000000000> ", rect_list)
-
-            // })
-
+            if (e.target.parent.children.length > 2) {
+                currentGroupName.sender = e.target.parent.children[2].attrs.text
+            }
             currentGroupName.name = e.target.parent.attrs.name
             currentGroupName.getX = e.target.parent.attrs.x
             currentGroupName.getY = e.target.parent.attrs.y
+            currentGroupName.bar = obj.group.children[0].attrs
 
-            // currentGroupName.name = group.name()
-            // currentGroupName.getX = group.getX()
-            // currentGroupName.getY = group.getY()
-            currentGroupName.bar = group.children[0].attrs
-                // group.draggable(true)
             var container = stage.container();
-            // make it focusable
+
             container.tabIndex = 1;
             // focus it
             // also stage will be in focus on its click
             container.focus();
-            group.addEventListener('keydown', (el) => {
-                // container.addEventListener('keydown', function(el) {
-                if (el.keyCode === 27) {
-                    resize_gr.detach()
-                    btn_draw_shape.style.display = 'none';
-                } else if (el.keyCode === 46) {
-                    // if (e.target.name === group.name()) {
-
-                    // console.log(e.target)
-                    //     group.destroy()
-                    //     resize_gr.destroy()
-                    //         // arr_dif.destroy()
-                    //     grp_array.destroy()
-                    //     btn_draw_shape.style.display = 'none';
-                    //     // remove shape of rect_list
-                    //     rect_list.filter((fil) => {
-                    //         if (fil.id === e.target.attrs.id) {
-                    //             const index = rect_list.indexOf(fil)
-                    //             rect_list.splice(index, 1)
-                    //         }
-
-                    //         arrow_list.forEach((a) => {
-                    //             if (fil.attrs.name === a.from.name || fil.attrs.name === a.to.name) {
-                    //                 const idx = arrow_list.indexOf(a)
-                    //                 arrow_list.splice(idx, 1)
-                    //                 arrow_distance.destroy()
-                    //                 note_group.destroy()
-
-                    //             }
-                    //         })
-
-                    //     })
-
-
-                    //     window.addEventListener('click', () => {
-                    //         _ul.style.display = 'none'
-                    //     })
-                    // }
-
-
-                    // console.log(group.getAbsoluteTransform())
-                } else {
-                    return;
-                }
-                layer.batchDraw();
-                // });
-            })
-            init_partner(group)
+            obj.group.addEventListener('keydown', (el) => {
+                    if (el.keyCode === 27) {
+                        obj.resize_gr.detach()
+                        btn_draw_shape.style.display = 'none';
+                    } else if (el.keyCode === 46) {
+                        console.log("46")
+                    } else {
+                        return;
+                    }
+                    layer.batchDraw();
+                })
+                // init_partner(obj.group)
         })
-
-        group.on('dragmove', (e) => {
-            // console.log("object")
-            // rect_list.forEach((f) => {
-            //     console.log(f)
-            //         // console.log(group.name())
-            //         // if (f.atrrs.name === group.name()) {
-            //         //     f.attrs.x = group.getX()
-            //         //     f.attrs.y = group.getY()
-            //         // }
-            // })
+        obj.group.on('dragmove', (e) => {
             obj_group.x = e.target.getClientRect().x
             obj_group.y = e.target.getClientRect().y
             opt.style.display = 'initial';
@@ -2010,25 +865,13 @@ container.addEventListener('drop', (e) => {
                 obj_group.x + 370 + 'px';
             opt.addEventListener('click', () => {
                 opt.style.display = 'none';
-
             })
         })
 
-        function onlyUnique(value, index, self) {
-            return self.indexOf(value) === index;
-        }
-
-
-
-        var status = false
-        group.on('dblclick', (ev) => {
-            // group_.x = currentGroupName.getX()
-            // group_.y = currentGroupName.getY()
-            // group_.name = .name()
-            // console.log(group)
-
-            // if (node.getClassName() === 'Text') {
+        obj.group.on('dblclick', (ev) => {
             Swal.fire({
+                html: '<input id="swal-input1" class="swal2-input">' +
+                    '<input id="swal-input2" class="swal2-input">',
                 title: 'Enter Name',
                 input: 'text',
                 inputAttributes: {
@@ -2038,235 +881,19 @@ container.addEventListener('drop', (e) => {
                 confirmButtonText: 'Submit',
                 showLoaderOnConfirm: true,
                 inputValidator: (value) => {
-                    var st = false
                     return new Promise((resolve) => {
-
-                        if (rect_list.length === 0) {
-                            rect_list.push(group)
-                            group.add(labelName)
-                            labelName.absolutePosition({
-                                x: pos.x + 40 - (measure_text.width / 2),
-                                y: pos.y + 20 - (measure_text.height / 2),
-
-                            })
-                        }
-                        console.log(rect_list)
-                        if (rect_list.length !== 0) {
-                            rect_list.filter((fil) => {
-                                if (fil.children.length !== 0) {
-                                    if (value === fil.children[2].attrs.text) {
-                                        st = true
-                                    }
-                                }
-                                // console.log(fil.children[2].attrs.text)
-                                // if (value === fil.children[2].attrs.text) {
-                                //     st = true
-                                //         // console.log(fil)
-
-                                // }
-                            })
-                        }
-                        if (st == true) {
-                            resolve('name already exist !')
-                        }
-                        if (value === '') {
-                            resolve('You need to enter name !')
+                        if (value !== '') {
+                            add_element_to_array_if_not_exist(rect_list, global_partner_list, obj.group, value, resolve, obj.labelName)
                         } else {
-
-                            // group.children[2].attrs.text = value
-                            // node.text(value)
-                            if (st == false) {
-                                rect_list.push(group)
-                                group.add(labelName)
-                                labelName.absolutePosition({
-                                    x: pos.x + 40 - (measure_text.width / 2),
-                                    y: pos.y + 20 - (measure_text.height / 2),
-
-                                })
-                                labelName.text(value)
-
-                                // console.log(rect_list)
-                                // status = true
-                                resolve()
-                            }
-
-
+                            resolve('Name is required')
                         }
-
                     })
                 }
             })
             frm.reset()
-            rect_list.filter(onlyUnique)
-                // console.log(rect_list)
         })
-
-        stage.add(layer)
-
-
-        // create_note(group)
-
-
-        var input_reciver = $('input[name=reciver]').tagify({
-                whitelist: ["h(a,b)", "m(c,d)"]
-            })
-            .on('add', function(e, tagName) {
-                // console.log('JQEURY EVENT: ', 'added', tagName)
-            })
-            .on("invalid", function(e, tagName) {
-                // console.log('JQEURY EVENT: ', "invalid", e, ' ', tagName);
-            });
-        var jqTagify = input_reciver.data('tagify');
-        var input_def = $('input[name=define]').tagify({
-                whitelist: ["h(a,b)", "m(c,d)"]
-            })
-            .on('add', function(e, tagName) {
-                // console.log('JQEURY EVENT: ', 'added', tagName)
-            })
-            .on("invalid", function(e, tagName) {
-                // console.log('JQEURY EVENT: ', "invalid", e, ' ', tagName);
-            });
-        var jqTagify_1 = input_def.data('tagify');
-        var input_params = $('input[name=parametrs]').tagify({
-                whitelist: ["h(a,b)", "m(c,d)"]
-            })
-            .on('add', function(e, tagName) {
-                // console.log('JQEURY EVENT: ', 'added', tagName)
-            })
-            .on("invalid", function(e, tagName) {
-                // console.log('JQEURY EVENT: ', "invalid", e, ' ', tagName);
-            });
-        var jqTagify_2 = input_params.data('tagify');
-
-
-        var btn_param = getFormId()
-        var obj_partner = {}
-        var connect_node = {
-            from: {},
-            to: {},
-            arrow: {},
-        }
-        var note_group
-        btn_param.addEventListener('click', (e) => {
-            // console.log(currentGroupName.name)
-
-            if (NotEmpty(obj_partner))
-                obj_partner = {}
-
-            // console.log("send_list ==> ", send_list)
-
-
-            // obj_partner.partnerName = group.name()
-
-            obj_partner.reciver = jQuery.parseJSON(input_reciver.val())
-            obj_partner.reciver = obj_partner.reciver.map(function(elem) {
-                return elem.value;
-            }).join(",")
-            obj_partner.define = jQuery.parseJSON(input_def.val())
-            obj_partner.define = obj_partner.define.map(function(elem) {
-                return elem.value;
-            }).join(",")
-            obj_partner.params = jQuery.parseJSON(input_params.val())
-            obj_partner.params = obj_partner.params.map(function(elem) {
-                return elem.value;
-            }).join(",")
-
-            obj_partner.partnerName = currentGroupName.name
-
-            send_list.push(obj_partner)
-            connect_node.from = currentGroupName
-            rect_list.forEach((el) => {
-                if (el.children[2].attrs.text === obj_partner.reciver) {
-                    connect_node.to.name = el.attrs.name
-                    connect_node.to.getX = el.attrs.x
-                    connect_node.to.getY = el.attrs.y
-                    connect_node.to.bar = el.children[0].attrs
-                }
-            })
-
-            connect_node.to.transmitterName = connect_node.from.name
-            connect_node.from.reciverName = connect_node.to.name
-                // console.log(send_list)
-
-            var distance_partner
-            if (Math.sign(distance_partner)) {
-                distance_partner = connect_node.to.getX - connect_node.from.getX - 50
-            } else {
-                distance_partner = connect_node.to.getX - connect_node.from.getX + 50
-            }
-
-
-            function dist_y() {
-                let d
-                if (arrow_list.length === 0) {
-                    d = connect_node.from.getY + 30
-                } else {
-                    d = arrow_list.slice(-1)[0].arrow.attrs.y + 50
-                }
-                return d
-            }
-            // console.log(connect_node.from.bar.getAbsolutePosition())
-            var firstItem = connect_node.from.getY + 20
-            arrow_distance = new Konva.Arrow({
-                x: connect_node.from.getX,
-                y: dist_y(),
-                // y: arrow_list.length === 0 ? firstItem : arrow_list.slice(-1)[0].arrow.attrs.y + 50,
-                points: [connect_node.from.bar.points[0], connect_node.from.getY, distance_partner, connect_node.from.getY],
-                // points: [connect_node.from.bar.points[0], connect_node.from.bar.points[1], connect_node.to.bar.points[2], connect_node.to.bar.points[3]],
-                pointerLength: 10,
-                pointerWidth: 10,
-                fill: 'black',
-                stroke: 'black',
-                strokeWidth: 2,
-                draggable: true,
-                id: "arrow_" + arrow_count
-            });
-            layer.add(arrow_distance)
-                // layer.add(group_arrow)
-                // resize_arrow.nodes([arrow_distance])
-            var arrr = {}
-            var dict_params = []
-            var p = []
-            var length_params = jQuery.parseJSON(input_params.val()).length
-            var handle_text_note = jQuery.parseJSON(input_params.val())
-            if (params_arr.length === 0) {
-                for (var i = 0; i < length_params; i++) {
-                    p.push("P" + i)
-                    params_arr.push("P" + i)
-                }
-            } else {
-                for (var i = 0; i < length_params; i++) {
-                    p.push("P" + params_arr.length)
-                    params_arr.push("P" + params_arr.length)
-                }
-            }
-
-            if (params_arr.length === 0) {
-                for (var i = 0; i < p.length; i++) {
-                    arrr[p[i]] = handle_text_note[i].value
-                }
-            } else {
-                for (var i = 0; i < p.length; i++) {
-                    arrr[p[i]] = handle_text_note[i].value
-                }
-            }
-            for (const prop in arrr) {
-                dict_params.push(`${prop} = ${arrr[prop]}`)
-            }
-
-
-            // arrow_distance.on('click', (ar) => {
-            //     console.log(ar)
-            //         // var tr = arrow_distance.getTransform();
-            //         // resize_arrow.nodes([arrow_distance]);
-            //         // console.log(tr)
-            // })
-
-            // console.log("arrrrrrrrrrrrrow ===> ", arrow_distance)
-
-            arrow_distance.on("contextmenu", (e) => {
+        obj.group.on("contextmenu", (e) => {
                 e.evt.preventDefault()
-
                 var _ul = document.createElement('ul')
                 _ul.className = "dropdown-menu"
                 _ul.id = "menu"
@@ -2311,350 +938,1189 @@ container.addEventListener('drop', (e) => {
                 _ul.appendChild(li_paste)
                 _ul.appendChild(li_delete)
 
-
                 li_delete.addEventListener('click', () => {
-                    if (e.target.getClassName() === "Arrow") {
-                        e.target.destroy()
-                            // note_group.destroy()
-                            // arrow_list.filter((fil) => {
-                            //     if (fil.arrow.attrs.id === e.target.attrs.id) {
-                            //         const index = arrow_list.indexOf(fil)
-                            //         arrow_list.splice(index, 1)
-                            //             // var a = arrow_list.slice(index, arrow_list.length)
-                            //             // a.forEach((ar) => {
-                            //             //     ar.arrow.attrs.y - 70
-                            //             //     arrow_list.push(a)
-                            //             // })
-                            //     }
-                            // })
-                    }
+                    rect_list.filter((fil) => {
+                        if (fil.attrs.id === e.target.parent.attrs.id) {
+                            var index = rect_list.indexOf(fil)
+                        }
+                        e.target.parent.destroy()
+                    })
+                    obj.resize_gr.destroy()
+                    opt.style.display = "none"
+                })
+                if (e.target === stage) {
+                    return;
+                } else {
+                    _ul.style.display = 'initial';
+                    var containerRect = stage.container().getBoundingClientRect();
+                    _ul.style.top =
+                        containerRect.top + stage.getPointerPosition().y + 4 + 'px';
+                    _ul.style.left =
+                        containerRect.left + stage.getPointerPosition().x + 4 + 'px';
+                }
+
+                window.addEventListener('click', () => {
+                    _ul.style.display = 'none'
                 })
 
-                // if (e.target === stage) {
-                //     return;
-                // } else {
-                //     _ul.style.display = 'initial';
-                //     var containerRect = stage.container().getBoundingClientRect();
-                //     _ul.style.top =
-                //         containerRect.top + stage.getPointerPosition().y + 4 + 'px';
-                //     _ul.style.left =
-                //         containerRect.left + stage.getPointerPosition().x + 4 + 'px';
-                // }
-
-
-
-                // window.addEventListener('click', () => {
-                //     _ul.style.display = 'none'
-                // })
-
             })
-
-            connect_node.arrow = arrow_distance
-
-            var simpleText = new Konva.Text({
-                x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x + 100 : connect_node.arrow.attrs.x - 20,
-                // y: connect_node.from.bar.points[0],
-                y: arrow_list.length === 0 ? connect_node.from.getY + 70 : arrow_list.slice(-1)[0].arrow.attrs.y + 40,
-                text: p,
-                fontSize: 20,
-                fontFamily: 'Calibri',
-                fill: 'green',
-            });
-
-            var textpath = new Konva.TextPath({
-                x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x + 240 : connect_node.arrow.attrs.x - 230,
-                y: connect_node.from.getY,
-                fill: '#333',
-                fontSize: 16,
-                fontFamily: 'Arial',
-                text: p,
-                stroke: "green",
-                data: 'M 10 10 L 300 10',
-            });
-
-            // group_arrow.add(arrow_distance, textpath)
-
-            layer.add(simpleText);
-
-            note_group = new Konva.Group({
-                // x: containerRect.top + stage.getPointerPosition().y + 10,
-                // y: containerRect.left + stage.getPointerPosition().x + 20,
-                width: 130,
-                height: 25,
-                // rotation: angle,
-                draggable: true,
-                id: "note_" + arrow_count
-            });
-
-
-            let text_note = new Konva.Text({
-                text: "definitions: " + obj_partner.define + "\n" + dict_params.toString(),
-                fontSize: 18,
-                fontStyle: "italic",
-                fontFamily: 'Calibri',
-                fill: '#000',
-                width: 130,
-                padding: 5,
-                align: 'center'
-            })
-
-            var base_node = new Konva.Rect({
-                width: 150,
-                height: text_note.height(),
-                fill: '#fdfd80',
-                shadowOpacity: 0.4,
-                shadowBlur: 2,
-                cornerRadius: [0, 0, 0, 0],
-                shadowColor: 'black',
-                shadowOffset: {
-                    x: 1,
-                    y: 1
-                },
-                strokeWidth: 4,
-            })
-
-            note_group.add(base_node, text_note);
-
-            // console.log("send_list ==> ", send_list)
-
-
-            note_group.add(text_note);
-            // text_note.text("definitions: " + define + "\n" + "parameters: " + params)
-            let cumputing_x = Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.from.getX - 110 : connect_node.from.getX + 60
-            note_group.absolutePosition({
-                // x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x - 110 : connect_node.arrow.attrs.x + 60,
-                x: cumputing_x,
-                y: connect_node.arrow.attrs.y + 10
-            })
-            layer.add(note_group)
-            connect_node.note = note_group
-            arrow_list.push(connect_node)
-            arrow_count++
-            console.log(" =======> ", arrow_list)
-
-            $('#staticBackdrop').modal('toggle')
-
-
-            currentGroupName = {}
-
-
-        })
-        $('#submit_btn').on('click', jqTagify.removeAllTags.bind(jqTagify))
-        $('#submit_btn').on('click', jqTagify_1.removeAllTags.bind(jqTagify_1))
-        $('#submit_btn').on('click', jqTagify_2.removeAllTags.bind(jqTagify_2))
-
-
-        group.on("contextmenu", (e) => {
-            e.evt.preventDefault()
-
-            var _ul = document.createElement('ul')
-            _ul.className = "dropdown-menu"
-            _ul.id = "menu"
-            _ul.style.display = "none"
-            _ul.style.position = "absolute"
-            document.body.appendChild(_ul)
-
-            var li_copy = document.createElement('li')
-            var a_copy = document.createElement('a')
-            a_copy.id = "btn_copy"
-            a_copy.className = "dropdown-item"
-            a_copy.innerText = "Copy"
-            a_copy.href = "#"
-            li_copy.appendChild(a_copy)
-
-            var li_cut = document.createElement('li')
-            var a_cut = document.createElement('a')
-            a_cut.id = "btn_cut"
-            a_cut.className = "dropdown-item"
-            a_cut.innerText = "Cut"
-            a_cut.href = "#"
-            li_cut.appendChild(a_cut)
-
-            var li_paste = document.createElement('li')
-            var a_paste = document.createElement('a')
-            a_paste.id = "btn_paste"
-            a_paste.className = "dropdown-item"
-            a_paste.innerText = "Paste"
-            a_paste.href = "#"
-            li_paste.appendChild(a_paste)
-
-            var li_delete = document.createElement('li')
-            var a_delete = document.createElement('a')
-            a_delete.id = "btn_delete"
-            a_delete.className = "dropdown-item"
-            a_delete.innerText = "Delete"
-            a_delete.href = "#"
-            li_delete.appendChild(a_delete)
-
-            _ul.appendChild(li_copy)
-            _ul.appendChild(li_cut)
-            _ul.appendChild(li_paste)
-            _ul.appendChild(li_delete)
-
-
-            li_delete.addEventListener('click', () => {
-                rect_list.filter((fil) => {
-                    if (fil.attrs.id === e.target.parent.attrs.id) {
-                        var index = rect_list.indexOf(fil)
-                        console.log(index)
-                            // rect_list.splice(index, 1)
-                    }
-                    e.target.parent.destroy()
-                        // arrow_list.forEach((a) => {
-                        //     if (fil.attrs.name === a.from.name || fil.attrs.name === a.to.name) {
-                        //         const idx = arrow_list.indexOf(a)
-                        //         arrow_list.splice(idx, 1)
-                        //         arrow_distance.destroy()
-                        //         note_group.destroy()
-
-                    //     }
-                    // })
-
-
-                    // console.log(fil)
-
-                })
-
-                resize_gr.destroy()
-                    // arr_dif.destroy()
-                    // grp_array.destroy()
-                opt.style.display = "none"
-                    // btn_draw_shape.style.display = 'none';
-                    // remove shape of rect_list
-
-
-            })
-
-
-            if (e.target === stage) {
-                return;
-            } else {
-                _ul.style.display = 'initial';
-                var containerRect = stage.container().getBoundingClientRect();
-                _ul.style.top =
-                    containerRect.top + stage.getPointerPosition().y + 4 + 'px';
-                _ul.style.left =
-                    containerRect.left + stage.getPointerPosition().x + 4 + 'px';
-            }
-
-
-
-            window.addEventListener('click', () => {
-                _ul.style.display = 'none'
-            })
-
-        })
-
-
-
-
-        // connect_node.to = rect_list.filter(el => el.attrs.name === obj_partner.reciver)
-
-
-        stage.on('click', (e) => {
-            e.evt.preventDefault();
-            if (e.target === stage) {
-                resize_gr.nodes([]);
-                resize_arrow.nodes([]);
-                group.draggable(false)
-                btn_draw_shape.style.display = 'none'
-                opt.style.display = 'none'
-                return;
-            }
-            // console.log(e.target.parent.attrs.x)
-
-            target = e.target.parent
-            tr_target = resize_gr
-
-            if (e.target.getClassName("rect")) {
-                // console.log("object is rect")
-                resize_gr.nodes([e.target.parent]);
-            }
-            // else if (e.target.getClassName("arrow")) {
-            //     resize_arrow.nodes([e.target]);
+            // } else if (obj.group.attrs.name.includes("arrow_")) {
+            //     console.log("arrow ", obj.group.attrs)
             // }
-            // resize_arrow.nodes([arrow_distance]);
-        })
-
-        var scaleBy = 1.01;
-        stage.on('wheel', (e) => {
-            // stop default scrolling
-            e.evt.preventDefault();
-
-            console.log("object is rect")
-            var oldScale = stage.scaleX();
-            var pointer = stage.getPointerPosition();
-
-            var mousePointTo = {
-                x: (pointer.x - stage.x()) / oldScale,
-                y: (pointer.y - stage.y()) / oldScale,
-            };
-
-            // how to scale? Zoom in? Or zoom out?
-            let direction = e.evt.deltaY > 0 ? 1 : -1;
-
-            // when we zoom on trackpad, e.evt.ctrlKey is true
-            // in that case lets revert direction
-            if (e.evt.ctrlKey) {
-                direction = -direction;
-            }
-
-            var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-
-            stage.scale({ x: newScale, y: newScale });
-
-            var newPos = {
-                x: pointer.x - mousePointTo.x * newScale,
-                y: pointer.y - mousePointTo.y * newScale,
-            };
-            stage.position(newPos);
-        });
-
-
-
-        // console.log(arrow_list)
-
-        // create_rect(pos.x, pos.y, layer, stage, currentGroupName)
-        partner_counter++
-        count++
-
     }
 
-    // b.addEventListener('click', (e) => {
-    // $('#initial').modal('toggle')
-    // inp = $('input[name=name]').val()
-    // group.getChildren((node) => {
-    //     if (node.getClassName() === 'Text') {
-    //         // node.text(inp)
 
-    //         // btn_init
+    if (obj.rec) {
+        obj.rec.on('mouseover', () => {
+            stage.container().style.cursor = 'pointer';
+        })
+        obj.rec.on('mouseleave', () => {
+            stage.container().style.cursor = 'default';
+        })
+    }
 
-    //         // get name of shape
-    //         swal("Please Enter Name", {
-    //             content: {
-    //                 element: "input",
-    //                 attributes: {
-    //                     placeholder: "Name",
-    //                     type: "text",
-    //                 },
-    //             },
-    //             buttons: {
-    //                 cancel: true,
-    //                 confirm: true,
-    //             },
-    //         }).then(value => {
-    //             node.text(value)
+    if (obj.resize_gr) {
+        obj.resize_gr.on('transform', (e) => {
+            obj.resize_gr.setAttrs({
+                width: Math.max(obj.group.width() * obj.group.scaleX(), 5),
+                height: Math.max(obj.group.height() * obj.group.scaleY(), 5),
+                scaleX: 1,
+                scaleY: 1,
+            })
+        })
+        layer.add(obj.resize_gr)
+    }
+    var obj_group = {}
+
+
+
+
+
+    stage.add(layer)
+
+
+    // var invalid_empty_def = document.querySelector('#invalid-empty-def')
+    // var invalid_empty_params = document.querySelector('#invalid-empty-params')
+    var state_reciver = false
+    var state_define = false
+    var state_parametrs = false
+    $('#btnradio2').click(() => {
+            if (state_reciver == true && state_define == true && state_parametrs == true) {
+                invalid_empty_rec.style.display = "none"
+                    // invalid_empty_def.style.display = "none"
+                    // invalid_empty_params.style.display = "none"
+            }
+        })
+        // var white_list_partner = []
+        // for (var i = 0; i < global_partner_list.partners.length; i++) {
+        //     white_list_partner.push(global_partner_list.partners[i])
+        // }
+
+
+    function transformTag(tagData) {
+        var check_valid = error_handler_func(tagData.value)
+        if (check_valid == false) {
+            tagData.__isValid = false
+            tagData.color = "hsl(353.4,40.5%,69%)"
+            tagData.style = "--tag-bg:" + tagData.color;
+        } else {
+            tagData.__isValid = true
+        }
+    }
+
+
+
+
+
+    input_reciver_test = new Tagify(document.querySelector('input[name=reciver]'), {
+        whitelist: key_word_list,
+        maxTags: 10,
+        transformTag: transformTag,
+        dropdown: {
+            maxItems: 20, // <- mixumum allowed rendered suggestions
+            classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+            enabled: 0, // <- show suggestions on focus
+            closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+        }
+    })
+
+    // input_reciver_test.addTags(["banana", "orange", "apple"])
+
+    // input_reciver_test.on('add', (e) => {
+    //     console.log("add", e)
+    // })
+    input_def_test = new Tagify(document.querySelector('input[name=define]'), {
+            whitelist: key_word_list,
+            maxTags: 10,
+            transformTag: transformTag,
+            dropdown: {
+                maxItems: 20, // <- mixumum allowed rendered suggestions
+                classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+                enabled: 0, // <- show suggestions on focus
+                closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+            }
+        })
+        // .on('add', function(e, tagName) {})
+
+    // })
+    input_params_test = new Tagify(document.querySelector('input[name=params]'))
+
+    console.log(input_reciver_test.value)
+
+    // input_reciver = $('input[name=reciver]').tagify({
+    //         whitelist: [],
+    //         maxTags: 10,
+    //         // transformTag: transformTag,
+    //         dropdown: {
+    //             maxItems: 20, // <- mixumum allowed rendered suggestions
+    //             classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+    //             enabled: 0, // <- show suggestions on focus
+    //             closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+    //         }
+    //     })
+    //     .on('add', function(e, tagName) {
+
+    //     })
+    //     .on("invalid", function(e, tagName) {
+    //         console.log("invalid", tagName)
+    //     })
+    //     .on('input', (e) => {
+    //         if (state_reciver == true) {
+    //             invalid_empty_rec.style.display = "none"
+    //         }
+    //     })
+
+    // // console.log(global_partner_list.partners.toString())
+    // // console.log(global_partner_list.partners)
+    // var jqTagify = input_reciver.data('tagify');
+    // input_def = $('input[name=define]').tagify({
+    //         whitelist: key_word_list,
+    //         maxTags: 10,
+    //         transformTag: transformTag,
+    //         dropdown: {
+    //             maxItems: 20, // <- mixumum allowed rendered suggestions
+    //             classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+    //             enabled: 0, // <- show suggestions on focus
+    //             closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+    //         }
+    //     })
+    //     .on('add', function(e, tagName) {})
+    //     .on("invalid", function(e, tagName) {})
+    //     .on('input', (e) => {
+    //         // if (state_reciver == true) {
+    //         //     invalid_empty_def.style.display = "none"
+    //         // }
+    //         // console.log(e)
+    //     })
+    // var jqTagify_1 = input_def.data('tagify');
+    // input_params = $('input[name=parametrs]').tagify({
+    //         whitelist: key_word_list,
+    //         maxTags: 10,
+    //         transformTag: transformTag,
+    //         dropdown: {
+    //             maxItems: 20, // <- mixumum allowed rendered suggestions
+    //             classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+    //             enabled: 0, // <- show suggestions on focus
+    //             closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+    //         }
+    //     })
+    //     .on('add', function(e, tagName) {})
+    //     .on("invalid", function(e, tagName) {})
+    //     .on('input', (e) => {
+    //         if (state_reciver == true) {
+    //             invalid_empty_params.style.display = "none"
+    //         }
+    //     })
+    // var jqTagify_2 = input_params.data('tagify');
+    var btn_param = getFormId('submit_btn')
+    var btn_param_note = getFormId('submit_btn_note')
+    var obj_partner = {}
+    var connect_node = {
+        from: {},
+        to: {},
+        arrow: {},
+    }
+
+    if (obj.arrow_group) {
+        obj.arrow_group.add(obj.arrow_distance, obj.lableArrow)
+        layer.add(obj.arrow_group)
+    }
+    // if (obj.note_group) {
+    //     obj.note_group.add(obj.base_node, obj.text_note);
+    //     layer.add(obj.note_group)
+    //     obj.note_group.on('click', (e) => {
+    //         console.log("note ", e)
+    //         opt_note.style.display = 'initial';
+    //         // if (!NotEmpty(obj_group)) {
+    //         opt_note.style.top =
+    //             e.target.parent.attrs.y + 75 + 'px';
+    //         opt_note.style.left =
+    //             e.target.parent.attrs.x + 410 + 'px';
+    //         opt_note.addEventListener('click', () => {
+    //             opt_note.style.display = 'none';
     //         })
+    //     })
+
+    // }
 
 
-    //     }
+    // -----------------------note tagify -----------------------//
+    input_def_note = $('input[name=define_note]').tagify({
+            whitelist: key_word_list,
+            maxTags: 10,
+            transformTag: transformTag,
+            dropdown: {
+                maxItems: 20, // <- mixumum allowed rendered suggestions
+                classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+                enabled: 0, // <- show suggestions on focus
+                closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+            }
+        })
+        .on('add', function(e, tagName) {})
+        .on("invalid", function(e, tagName) {})
+        .on('input', (e) => {
+            // if (state_reciver == true) {
+            //     invalid_empty_def.style.display = "none"
+            // }
+            // console.log(e)
+        })
+    var jqTagify_note_1 = input_def_note.data('tagify');
+    input_params_note = $('input[name=parametrs_note]').tagify({
+            whitelist: key_word_list,
+            maxTags: 10,
+            transformTag: transformTag,
+            dropdown: {
+                maxItems: 20, // <- mixumum allowed rendered suggestions
+                classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+                enabled: 0, // <- show suggestions on focus
+                closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+            }
+        })
+        .on('add', function(e, tagName) {})
+        .on("invalid", function(e, tagName) {})
+        .on('input', (e) => {
+            // if (state_reciver == true) {
+            //     invalid_empty_params.style.display = "none"
+            // }
+        })
+    var jqTagify_note_2 = input_params_note.data('tagify');
+    // ----------------------------------------------------------//
+
+
+
+    // jqTagify.removeAllTags.bind(jqTagify)
+    // jqTagify_1.removeAllTags.bind(jqTagify_1)
+    // jqTagify_2.removeAllTags.bind(jqTagify_2)
+    function params_to_note_parser(input_params, index) {
+        var params_arr = []
+        var p = []
+        console.log("======> ", input_params_test.value)
+        if (input_params_test.value.trim() != '') {
+            var length_params = jQuery.parseJSON(input_params_test.value).length
+            var handle_text_note = input_params_test.value
+                // var handle_text_note = jQuery.parseJSON(array_state_note[index].params.key)
+            var str_params = ''
+            for (var i = 0; i < length_params; i++) {
+                params_arr.push(handle_text_note[i])
+                str_params += "P" + (index) + i.toString() + " = " + jQuery.parseJSON(input_params_test.value)[i].value + "\n"
+                p.push(" P" + (index) + i.toString())
+            }
+        }
+        return { key: handle_text_note, value: str_params, label: p }
+    }
+
+
+
+
+
+    // $('#submit_btn').on('click', jqTagify.removeAllTags.bind(jqTagify))
+    // $('#submit_btn').on('click', jqTagify_1.removeAllTags.bind(jqTagify_1))
+    // $('#submit_btn').on('click', jqTagify_2.removeAllTags.bind(jqTagify_2))
+
+    // $('#btn_note1').click((e) => {
+    //     console.log("note_state", array_state_note)
+    //         // array_state_note.filter(st => {
+    //         //     if (e.terget.parent.attrs.name === st.note_name) {
+    //         //         var input_def_note = $('input[name=define_note]').tagify({
+    //         //                 whitelist: key_word_list,
+    //         //                 maxTags: 10,
+    //         //                 transformTag: transformTag,
+    //         //                 dropdown: {
+    //         //                     maxItems: 20, // <- mixumum allowed rendered suggestions
+    //         //                     classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+    //         //                     enabled: 0, // <- show suggestions on focus
+    //         //                     closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+    //         //                 }
+    //         //             })
+    //         //             .on('add', function(e, tagName) {})
+    //         //             .on("invalid", function(e, tagName) {})
+    //         //             .on('input', (e) => {
+    //         //                 if (state_reciver == true) {
+    //         //                     invalid_empty_def.style.display = "none"
+    //         //                 }
+    //         //                 console.log(e)
+    //         //             })
+    //         //         var jqTagify_note = input_def_note.data('tagify');
+    //         //         //     var input_def_note = $('input[name=define_note]').tagify({
+    //         //         //             // whitelist: key_word_list,
+    //         //         //             maxTags: 10,
+    //         //         //             transformTag: transformTag,
+    //         //         //             dropdown: {
+    //         //         //                 maxItems: 20, // <- mixumum allowed rendered suggestions
+    //         //         //                 classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+    //         //         //                 enabled: 0, // <- show suggestions on focus
+    //         //         //                 closeOnSelect: false // <- do not hide the suggestions dropdown once an item has been selected
+    //         //         //             }
+    //         //         //         })
+    //         //         //         // new Tagify(input_def_note)
+    //         //         //         .on('add', (e, target) => {
+    //         //         //             console.log(target)
+    //         //         //         })
+    //         //     }
+    //         // })
+
+    //     // $('#note_def').val(note_state.define)
+    //     // input_def.on('add', note_state.define)
+    //     // input_params.on('add', note_state.params)
+    //     // console.log("object", e.target.parent)
+    //     // console.log("object -> ", array_state_note)
     // })
-    // frm.reset()
+
+    // btn_param_note.addEventListener('click', (e) => {
+    //     input_def.on('input', (e, target) => {
+    //             console.log(target)
+    //         })
+    //         // if (input_def.val() != '') {
+    //         //     obj_partner.define = jQuery.parseJSON(input_def.val())
+    //         //     obj_partner.define.forEach(def => {
+    //         //         if (def.value.includes("=")) {
+    //         //             let split_mosavi = def.value.split("=")
+    //         //             macro_list.push({
+    //         //                 name: split_mosavi[0].trim(),
+    //         //                 value: split_mosavi[1].trim()
+    //         //             })
+    //         //         }
+    //         //         console.log("object obj_partner.define > ", macro_list)
+    //         //     })
+    //         //     obj_partner.define = obj_partner.define.map(function(elem) {
+    //         //         return elem.value;
+    //         //     }).join(",")
+
+    //     // }
+    //     // if (input_def.val() != '') {
+    //     //     obj_partner.params = jQuery.parseJSON(input_params.val())
+    //     //     obj_partner.params = obj_partner.params.map(function(elem) {
+    //     //         return elem.value;
+    //     //     }).join(",")
+    //     // }
     // })
+
+    partner_counter++
+    count++
+}
+
+function create(data) {
+    const obj_arr = []
+    var state = [data];
+    state.forEach((i) => {
+
+        // console.log("state ", i.children)
+        // if (i.className == 'Layer') {
+        //     obj.layer = new Konva.Layer({...i });
+
+        // }
+        i.children.forEach((j) => {
+                const obj = {}
+                switch (j.className) {
+                    case "Group":
+                        if (j.attrs.name.includes("partner")) {
+                            obj.group = new Konva.Group({
+                                draggable: true,
+                                name: j.attrs.name,
+                                x: j.attrs.x,
+                                y: j.attrs.y,
+                            });
+
+                            j.children.forEach((ch) => {
+                                switch (ch.className) {
+                                    case "Line":
+                                        obj.line = new Konva.Line({...ch });
+                                        obj.group.add(obj.line);
+                                        break;
+                                    case "Rect":
+                                        obj.rec = new Konva.Rect({...ch });
+                                        obj.group.add(obj.rec);
+                                        break;
+                                    case "Text":
+                                        obj.labelName = new Konva.Text({...ch });
+                                        obj.group.add(obj.labelName);
+                                        break;
+                                }
+                            })
+                            obj_arr.push(obj)
+
+                        } else if (j.attrs.name.includes("arrow")) {
+                            obj.arrow_group = new Konva.Group({
+                                draggable: true,
+                                name: j.attrs.name,
+                                // x: j.attrs.x,
+                                // y: j.attrs.y,
+                            });
+
+                            j.children.forEach((ch) => {
+                                switch (ch.className) {
+                                    case "Arrow":
+                                        obj.arrow_distance = new Konva.Arrow({...ch });
+                                        obj.arrow_group.add(obj.arrow_distance);
+                                        break;
+                                    case "Text":
+                                        obj.lableArrow = new Konva.Text({...ch });
+                                        obj.arrow_group.add(obj.lableArrow);
+                                        break;
+                                }
+                            })
+                            obj_arr.push(obj)
+
+                        } else {
+                            obj.note_group = new Konva.Group({
+                                draggable: true,
+                                name: j.attrs.name,
+                                // x: j.attrs.x,
+                                // y: j.attrs.y,
+                            });
+
+                            j.children.forEach((ch) => {
+                                switch (ch.className) {
+                                    case "Rect":
+                                        obj.base_node = new Konva.Rect({...ch });
+                                        obj.note_group.add(obj.base_node);
+                                        break;
+                                    case "Text":
+                                        obj.text_note = new Konva.Text({...ch });
+                                        obj.note_group.add(obj.text_note);
+                                        break;
+                                }
+                            })
+                            obj_arr.push(obj)
+                        }
+                        // obj_arr.push(obj)
+                        break;
+                    case "Transformer":
+                        obj.resize_gr = new Konva.Transformer({...j });
+                        obj_arr.push(obj)
+                        break;
+
+                }
+
+            })
+            // stg.add(layer);
+    })
+    return obj_arr
+}
+
+function import_file() {
+
+    var load_file = new FuncTool()
+    var pos = stage.getPointerPosition()
+    document.querySelector("#file-input").addEventListener('change', function() {
+        // files that user has chosen
+        var all_files = this.files;
+        if (all_files.length == 0) {
+            alert('Error : No file selected');
+            return;
+        }
+
+        // first file selected by user
+        var file = all_files[0];
+
+        // files types allowed
+        var allowed_types = ['application/json'];
+        if (allowed_types.indexOf(file.type) == -1) {
+            alert('Error : Incorrect file type');
+            return;
+        }
+
+        // Max 5 MB allowed
+        var max_size_allowed = 5 * 1024 * 1024
+        if (file.size > max_size_allowed) {
+            alert('Error : Exceeded size 5MB');
+            return;
+        }
+
+        var reader = new FileReader();
+
+        // file reading finished successfully
+        reader.addEventListener('load', function(e) {
+            var text = e.target.result;
+            console.log(create(JSON.parse(text)))
+
+            var opened_file_json = create(JSON.parse(text))
+            opened_file_json.forEach(create => {
+                    partnerEventHandler(create)
+                    if (create.group)
+                        rect_list.push(create.group)
+                        // if(create.)
+                    if (create.arrow_distance) {
+                        arrow_list.push({ arrow: create.arrow_distance })
+
+                    }
+                    if (create.lableArrow) {
+                        params_arr.push(create.lableArrow.attrs.text)
+                    }
+
+
+                })
+                // console.log(create.arrow_distance)
+            console.log(arrow_list)
+
+            // opened_file_json[0].forEach(g => {
+
+            //     })
+            // console.log(create(JSON.parse(text), stage))
+            // load_file.import_f(text)
+
+            // console.log(text)
+            if (text == "") {
+                alert('Error :File Is Empty!')
+            }
+        });
+
+        // file reading failed
+        reader.addEventListener('error', function() {
+            alert('Error : Failed to read file');
+        });
+
+        // read as text file
+        reader.readAsText(file);
+    });
+}
+
+
+//---------------------------------------------------------------------------------------//
+
+
+// var arrow_distance = ''
+// var simpleText = ''
+// var text_note = ''
+// var base_node = ''
+container.addEventListener('drop', (e) => {
+    e.preventDefault()
+    stage.setPointersPositions(e)
+
+
+    var pos = stage.getPointerPosition()
+    if (shape_id == 'square') {
+        partnerEventHandler(gn_obj(), pos)
+            // console.log("pos ", pos)
+    }
+
+
 })
 
 
+// -------------------------------form params-------------------------------------//
 
+btn_param.addEventListener('click', (e) => {
+    var note_state = {}
+    var note_obj = not_new()
+
+    if (input_reciver_test.value !== '') {
+        // var check_reciver = jQuery.parseJSON(input_reciver.val()).map(function(elem) {
+        //     return elem.value;
+        // }).join(",")
+        console.log("object")
+
+        var check_reciver = JSON.parse(input_params_test.value).map(function(elem) {
+            return elem.value;
+        }).join(",")
+
+        // check_reciver = check_reciver
+        console.log(check_reciver)
+        rect_list.forEach(rc => {
+                if (rc.children[2].attrs.text === check_reciver) {
+                    invalid_empty_rec.style.display = "none"
+                        // invalid_empty_def.style.display = "none"
+                        // invalid_empty_params.style.display = "none"
+
+                    if (NotEmpty(obj_partner))
+                        obj_partner = {}
+
+                    obj_partner.reciver = jQuery.parseJSON(input_params_test.value)
+                    obj_partner.reciver = obj_partner.reciver.map(function(elem) {
+                        return elem.value;
+                    }).join(",")
+                    console.log(input_def_test.val())
+                    if (input_def_test.val() != '') {
+                        obj_partner.define = jQuery.parseJSON(input_def_test.value)
+                        obj_partner.define.forEach(def => {
+                            if (def.value.includes("=")) {
+                                let split_mosavi = def.value.split("=")
+                                macro_list.push({
+                                    name: split_mosavi[0].trim(),
+                                    value: split_mosavi[1].trim()
+                                })
+                            }
+                            // console.log("object obj_partner.define > ", macro_list)
+                        })
+                        obj_partner.define = obj_partner.define.map(function(elem) {
+                            return elem.value;
+                        }).join(",")
+
+                    }
+                    // if (input_def.val() != '') {
+                    //     obj_partner.params = jQuery.parseJSON(input_params.val())
+                    //     obj_partner.params = obj_partner.params.map(function(elem) {
+                    //         return elem.value;
+                    //     }).join(",")
+                    // }
+
+                    obj_partner.partnerName = currentGroupName.name
+                    obj_partner.sender = currentGroupName.sender
+
+
+                    send_list.push(obj_partner)
+                        // console.log("object => ", send_list)
+                        // var defi = jQuery.parseJSON(input_def.val())
+                        // console.log(defi)
+
+
+                    connect_node.from = currentGroupName
+                    rect_list.forEach((el) => {
+                        if (el.children[2].attrs.text === obj_partner.reciver) {
+                            connect_node.to.name = el.attrs.name
+                            connect_node.to.getX = el.attrs.x
+                            connect_node.to.getY = el.attrs.y
+                            connect_node.to.bar = el.children[0].attrs
+                        }
+                    })
+
+                    connect_node.to.transmitterName = connect_node.from.name
+                    connect_node.from.reciverName = connect_node.to.name
+                        // connect_node.from.sender = currentGroupName.sender
+                    connect_node.to.message = connect_node.from.params
+                        // connect_node.from.bar = currentGroupName.bar
+
+                    // console.log(send_list)
+                    var distance_partner
+                    if (Math.sign(distance_partner)) {
+                        distance_partner = connect_node.to.getX - connect_node.from.getX - 50
+                    } else {
+                        distance_partner = connect_node.to.getX - connect_node.from.getX + 50
+                    }
+
+                    function dist_y() {
+                        let d
+                        if (arrow_list.length === 0) {
+                            d = connect_node.from.getY + 30
+                        } else {
+                            d = arrow_list.slice(-1)[0].arrow.attrs.y + 50
+                        }
+                        return d
+                    }
+                    var firstItem = connect_node.from.getY + 20
+                    var arrow_group = new Konva.Group({
+                        name: "arrow_" + arrow_count,
+                        draggable: true,
+                    })
+                    var arrow_distance = new Konva.Arrow({
+                        x: connect_node.from.getX,
+                        y: dist_y(),
+                        // y: arrow_list.length === 0 ? firstItem : arrow_list.slice(-1)[0].arrow.attrs.y + 50,
+                        points: [connect_node.from.bar.points[0], connect_node.from.getY, distance_partner, connect_node.from.getY],
+                        // points: [connect_node.from.bar.points[0], connect_node.from.bar.points[1], connect_node.to.bar.points[2], connect_node.to.bar.points[3]],
+                        pointerLength: 10,
+                        pointerWidth: 10,
+                        fill: 'black',
+                        stroke: 'black',
+                        strokeWidth: 2,
+                        // draggable: true, 
+                        // id: "arrow_" + arrow_count
+                    });
+
+
+
+
+                    // layer.add(arrow_distance)
+
+                    arrow_distance.on("contextmenu", (e) => {
+                        e.evt.preventDefault()
+
+                        var _ul = document.createElement('ul')
+                        _ul.className = "dropdown-menu"
+                        _ul.id = "menu"
+                        _ul.style.display = "none"
+                        _ul.style.position = "absolute"
+                        document.body.appendChild(_ul)
+
+                        var li_copy = document.createElement('li')
+                        var a_copy = document.createElement('a')
+                        a_copy.id = "btn_copy"
+                        a_copy.className = "dropdown-item"
+                        a_copy.innerText = "Copy"
+                        a_copy.href = "#"
+                        li_copy.appendChild(a_copy)
+
+                        var li_cut = document.createElement('li')
+                        var a_cut = document.createElement('a')
+                        a_cut.id = "btn_cut"
+                        a_cut.className = "dropdown-item"
+                        a_cut.innerText = "Cut"
+                        a_cut.href = "#"
+                        li_cut.appendChild(a_cut)
+
+                        var li_paste = document.createElement('li')
+                        var a_paste = document.createElement('a')
+                        a_paste.id = "btn_paste"
+                        a_paste.className = "dropdown-item"
+                        a_paste.innerText = "Paste"
+                        a_paste.href = "#"
+                        li_paste.appendChild(a_paste)
+
+                        var li_delete = document.createElement('li')
+                        var a_delete = document.createElement('a')
+                        a_delete.id = "btn_delete"
+                        a_delete.className = "dropdown-item"
+                        a_delete.innerText = "Delete"
+                        a_delete.href = "#"
+                        li_delete.appendChild(a_delete)
+
+                        _ul.appendChild(li_copy)
+                        _ul.appendChild(li_cut)
+                        _ul.appendChild(li_paste)
+                        _ul.appendChild(li_delete)
+
+
+                        li_delete.addEventListener('click', () => {
+                            if (e.target.getClassName() === "Arrow") {
+                                e.target.destroy()
+                            }
+                        })
+
+                    })
+
+                    connect_node.arrow = arrow_distance
+
+
+                    var lableArrow = new Konva.Text({
+                        x: Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.arrow.attrs.x + 100 : connect_node.arrow.attrs.x - 20,
+                        // y: connect_node.from.bar.points[0],
+                        y: arrow_list.length === 0 ? connect_node.from.getY + 70 : arrow_list.slice(-1)[0].arrow.attrs.y + 40,
+                        // text: "hdh",
+                        fontSize: 20,
+                        fontFamily: 'Calibri',
+                        fill: 'green',
+                    });
+
+                    // layer.add(lableArrow);
+                    arrow_group.add(arrow_distance, lableArrow)
+
+                    layer.add(arrow_group)
+                        // if (obj.arrow_group) {
+                        //     obj.arrow_group.add(obj.arrow_distance, obj.lableArrow)
+                        //     layer.add(obj.arrow_group)
+                        // }
+                    note_state.note_name = note_obj.note_group.attrs.name
+                    note_state.define = input_def_test.value
+
+                    note_state.params = params_to_note_parser(input_params, array_state_note.length)
+
+                    // let tmp_note_state = []
+                    // let str_note_param = ''
+                    // for (let i = 0; i < note_state.params.length; i++) {
+                    //     tmp_note_state.push(" P" + (array_state_note.length - 1).toString() + i.toString())
+                    //     str_note_param += " P" + (array_state_note.length - 1).toString() + i.toString() + " = " + note_state.params[i].value + "\n"
+
+                    // }
+
+
+
+                    lableArrow.text(note_state.params.label)
+                        // lableArrow.text(array_state_note.findIndex(i => i.note_name === note_state.note_name))
+
+                    console.log("state notes => ", array_state_note)
+
+                    let cumputing_x = Math.sign(arrow_distance.points()[2]) == 1 ? connect_node.from.getX - 110 : connect_node.from.getX + 60
+                    note_obj.note_group.absolutePosition({
+                        x: cumputing_x,
+                        y: connect_node.arrow.attrs.y + 10,
+                    })
+
+
+                    // note_obj.text_note.text(obj_partner.define + "\n" + listToString(dict_params).trim("\n"))
+                    note_obj.text_note.text(obj_partner.define + "\n" + note_state.params.value.trim("\n"))
+
+                    note_obj.base_node.height(note_obj.text_note.height())
+
+                    note_obj.note_group.add(note_obj.base_node, note_obj.text_note);
+
+                    note_state.note = note_obj.note_group
+                    note_state.PartnerReciver = input_reciver_test.value
+                    note_state.arrow = arrow_distance
+                    note_state.lableArrow = lableArrow
+                    array_state_note.push(note_state)
+                    console.log(array_state_note)
+                        // note_obj.note_group.on('click', (e) => {
+                        //     console.log("note ", e)
+                        //     opt_note.style.display = 'initial';
+                        //     // if (!NotEmpty(obj_group)) {
+                        //     opt_note.style.top =
+                        //         e.target.parent.attrs.y + 75 + 'px';
+                        //     opt_note.style.left =
+                        //         e.target.parent.attrs.x + 410 + 'px';
+                        //     opt_note.addEventListener('click', () => {
+                        //         opt_note.style.display = 'none';
+                        //     })
+                        //     var index_note = 0
+                        //     array_state_note.filter((st, i) => {
+                        //             if (st.note_name === e.target.parent.attrs.name) {
+                        //                 // console.log("if ======> ", i)
+                        //                 input_def_note.val(st.define)
+                        //                 input_params_note.val(st.params.key)
+                        //                 index_note = i
+
+                    //             }
+                    //         })
+                    //         // console.log("2 =>", array_state_note)
+                    //     $('#submit_btn_note').on('click', () => {
+
+                    //         // let PTNP = params_to_note_parser(input_params_note, index_note)
+                    //         console.log("event => ", input_params_note.val())
+                    //             // console.log(input_def_note.val())
+                    //             // array_state_note.filter((st, idx) => {
+                    //             //     if (st.note_name === e.target.parent.attrs.name) {
+
+                    //         // if (input_def_note.val() != '') {
+                    //         //     st.define = jQuery.parseJSON(input_def_note.val())
+                    //         //     st.define.forEach(def => {
+                    //         //         if (def.value.includes("=")) {
+                    //         //             let split_mosavi = def.value.split("=")
+                    //         //             macro_list.push({
+                    //         //                 name: split_mosavi[0].trim(),
+                    //         //                 value: split_mosavi[1].trim()
+                    //         //             })
+                    //         //         }
+                    //         //         // console.log("object obj_partner.define > ", macro_list)
+                    //         //     })
+                    //         //     st.define = input_def_note.val()
+
+                    //         // }
+
+
+                    //         // ---------------------------------new ---------------------------------------------//
+                    //         // var params_arr = []
+                    //         var p = []
+                    //         var str_params = ''
+                    //         if (input_params_note.val().trim() != '') {
+                    //             // var length_params = jQuery.parseJSON(input_params_note.val()).length
+                    //             // var handle_text_note = input_params.val()
+                    //             var handle_text_note = jQuery.parseJSON(input_params_note.val())
+
+                    //             for (var i = 0; i < handle_text_note.length; i++) {
+                    //                 // params_arr.push(handle_text_note[i])
+                    //                 str_params += " P" + (index_note) + i.toString() + " = " + handle_text_note[i].value + "\n"
+                    //                 p.push(" P" + (index_note) + i.toString())
+                    //             }
+                    //         }
+                    //         // ---------------------------------------------------------------------------------//
+
+
+
+                    //         // st.define = jQuery.parseJSON(input_def_note.val())
+                    //         array_state_note[index_note].params = { key: input_params_note.val(), value: str_params, label: p }
+                    //         array_state_note[index_note].define = input_def_note.val()
+                    //             // e.target.parent.children[1].attrs.text = jQuery.parseJSON(input_def_note.val()).map(function(elem) {
+                    //             //         return elem.value;
+                    //             //     }).join(",") + "\n" + st.params.value
+
+                    //         note_obj.text_note.text(jQuery.parseJSON(input_def_note.val()).map(function(elem) {
+                    //             return elem.value;
+                    //         }).join(",") + "\n" + array_state_note[index_note].params.value)
+                    //         note_obj.base_node.height(note_obj.text_note.height())
+                    //         lableArrow.text(array_state_note[index_note].params.label)
+                    //             // console.log(e.target.parent.children[1].attrs.text)
+                    //         opt_note.style.display = 'none';
+                    //         $('#note_modal').modal('toggle')
+
+                    //         // }
+
+
+
+                    //         // })
+
+                    //         console.log("1 =>", array_state_note)
+                    //     })
+                    // })
+
+                    layer.add(note_obj.note_group)
+
+                    connect_node.note = note_obj.note_group
+                    arrow_list.push(connect_node)
+                    arrow_count++
+                    console.log(arrow_list)
+                    $('#staticBackdrop').modal('toggle')
+
+                    json = obj.group.toJSON()
+                    currentGroupName = {}
+
+                } else {
+                    invalid_empty_rec.innerHTML = "There is no partner with this name !"
+                    invalid_empty_rec.style.display = "block"
+                }
+            })
+            // } else {
+            //     invalid_empty_rec.innerHTML = "This field is required !"
+            //     invalid_empty_rec.style.display = 'block'
+            //         // invalid_empty_def.style.display = 'block'
+            //         // invalid_empty_params.style.display = 'block'
+            //     state_reciver = true
+            //     state_define = true
+            //     state_parametrs = true
+    }
+})
+
+// -------------------------------------------------------------------------------//
+
+
+
+// -------------------------------------------------- Wraper -----------------------------------//
+
+var tmp_func_content
+var split_array
+var i = 0
+var flag_error_func = 1000
+
+function is_function(str) {
+    return str.includes("(") || str.includes(")")
+}
+
+function is_macro(str) {
+    var res = null
+    macro_list.forEach(mc => {
+        if (mc.name == str) {
+            res = mc.value
+        }
+    })
+    return res
+}
+
+function error_handler_func(func) {
+    var check_func = is_function(func)
+        // console.log(check_func)
+    if (check_func == false) {
+        return true
+    } else {
+        var out_func = func_content(func)
+            // console.log(out_func)
+        switch (out_func.name) {
+            case "Hash":
+                if (out_func.content.length < 1) {
+                    // console.log("object")
+                    return false
+                }
+                break;
+            case "Mac":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            case "Enc":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            case "Dec":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            case "Sign":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            case "Verify":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            case "AEnc":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            case "ADec":
+                if (out_func.content.length < 2) {
+                    return false
+                }
+                break;
+            default:
+                return true
+        }
+    }
+}
+
+function func_content(func) {
+    var obj_function = {}
+    var function_name
+    var counter = 0
+    var first_parantez = 0
+    var end_parantez = 0
+    for (var i = 0; i < func.length; i++) {
+        var c = func[i]
+        if (c == "(") {
+            if (counter == 0) {
+                function_name = func.slice(0, i).trim()
+                first_parantez = i + 1
+            }
+            counter++
+        }
+        if (c == ")") {
+            counter--
+            if (counter == 0)
+                end_parantez = i
+        }
+    }
+    var cont = func.substring(first_parantez, end_parantez)
+    obj_function.name = function_name.replace(',', '')
+    obj_function.content = splite_content(cont)
+    return obj_function
+}
+
+function splite_content(content) {
+    var split_array = []
+    var split_array_tmp = []
+    var counter = 0
+    var index = 0
+    for (var i = 0; i < content.length; i++) {
+        var c = content[i]
+        if (counter == 0 & c == ",") {
+            split_array.push(content.substring(index, i))
+            index = i
+        }
+        if (c == "(") {
+            counter++
+        }
+        if (c == ")") {
+            counter--
+        }
+    }
+    var tmp_content = content.substring(index, content.length)
+    if (tmp_content != '') {
+        split_array.push(tmp_content)
+    }
+    return split_array
+}
+
+function splite_string(str) {
+
+    str.forEach((sp) => {
+        // ------------ for macro check
+        let res_macro = is_macro(sp)
+        if (res_macro != null) {
+            sp = res_macro
+        }
+        //-----------------
+        if (is_function(sp)) {
+            fn = func_content(sp)
+            var func_exist_index = is_contain(function_array, fn.name)
+            if (func_exist_index < function_array.length) {
+                if (fn.content.length !== function_array[func_exist_index].content.length) {
+                    flag_error_func = func_exist_index
+                }
+            } else {
+                function_array.push(fn)
+            }
+            splite_string(func_content(sp).content)
+        } else {
+            nonce_array.push(sp.replace(',', ''))
+        }
+    })
+}
+
+function parser_msg_to_partner(str) {
+    var array_partner = []
+    str.forEach((s) => {
+        var index = is_contain(array_partner, s.sender)
+        if (index === array_partner.length) {
+            var new_partner = {
+                name: '',
+                sym_key: [],
+                Asym_key: [],
+                messages: [],
+                nonces: {
+                    new_array: [],
+                    var_array: []
+                }
+            }
+            new_partner.name = s.sender
+            new_partner.messages.push(s)
+            array_partner.push(new_partner)
+        } else {
+            array_partner[index].messages.push(s)
+        }
+        var index_1 = is_contain(array_partner, s.reciver)
+        if (index_1 === array_partner.length) {
+            var new_partner = {
+                name: '',
+                sym_key: [],
+                Asym_key: [],
+                messages: [],
+                nonces: {
+                    new_array: [],
+                    var_array: []
+                }
+            }
+            new_partner.name = s.reciver
+            new_partner.messages.push(s)
+            array_partner.push(new_partner)
+        } else {
+            array_partner[index_1].messages.push(s)
+        }
+
+    })
+
+    array_partner.forEach(n => {
+        n.messages.forEach(m => {
+            splite_string(splite_content(m.params))
+            var nonce = nonce_array
+            nonce.forEach(ns => {
+                if (!n.nonces.var_array.includes(ns) && !n.nonces.new_array.includes(ns) && ns.trim() != '') {
+                    if (n.name === m.sender) {
+                        n.nonces.new_array.push(ns)
+                    } else {
+                        n.nonces.var_array.push(ns)
+                    }
+                }
+            })
+        })
+    })
+    return array_partner
+}
+
+function is_contain(arr, partner) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].name === partner) {
+            // console.log("1 ",i)
+            return i
+        }
+    }
+    return arr.length
+
+}
+// ---------------------------------------------------------------------------------------------//
+
+
+
+$('#btn_run').click(function() {
+    parser_msg_to_partner(send_list)
+        // var code = $('#console').val(JSON.stringify(function_array) + "\n" + JSON.stringify(nonce_array));
+        // var code = $('#console').val(JSON.stringify(global_partner_list));
+        // ------------------------------- پارسر اصلی برای تنظیم مقادیر پارتنرها --------------------------//
+    var code = $('#console').val(JSON.stringify(parser_msg_to_partner(send_list)));
+
+
+    eval(code);
+})
 
 delete_shape.addEventListener('click', () => {
 
@@ -2729,7 +2195,273 @@ delete_shape.addEventListener('click', () => {
     // b.addEventListener('click', (e) => {
     //         console.log(currentGroupName)
     //     })
-    //-------------------------------------------------------------------------------------------//
+
+btn_save = document.getElementById('save');
+btn_save.addEventListener('click', (e) => {
+        // console.log(array_json)
+        // shape_list.forEach(sh => {
+        //         console.log(sh)
+        //             // array_json.push(sh.toJSON())
+        //     })
+        var blob = new Blob([layer.toJSON()], {
+            type: "text/plain;charset=utf-8"
+        });
+        saveAs(blob, "sample.json");
+        // var s = new FuncTool()
+        // s.saveStaticDataToFile(shape_list)
+        // this.saveStaticDataToFile(stage)
+    })
+    //-----------------------------------------------------------------------------
+    // var state = [data];
+    // var layer = new Konva.Layer();
+    // stage.add(layer);
+
+// // create function will destroy previous drawing
+// // then it will created required nodes and attach all events
+// function create() {
+//     layer.destroyChildren();
+//     state.forEach((item, index) => {
+//         console.log(item)
+//         var group = new Konva.Group({
+//             draggable: true,
+//             name: item.attrs.name,
+//         });
+//         layer.add(group);
+
+//         item.children.forEach((ch => {
+//             switch (ch.className) {
+//                 case "Line":
+//                     var line = new Konva.Line({...ch });
+//                     group.add(line);
+//                     break;
+//                 case "Rect":
+//                     var rect = new Konva.Rect({...ch });
+//                     group.add(rect);
+//                     break;
+//                 case "Text":
+//                     var text = new Konva.Text({...ch });
+//                     group.add(text);
+//                     break;
+//             }
+//         }))
+//     });
+// }
+
+// document
+//     .querySelector('#create-yoda')
+//     .addEventListener('click', function() {
+//         create(state);
+//     });
+
+
+stage.on('click', (e) => {
+    e.evt.preventDefault();
+    if (e.target === stage) {
+        console.log("object")
+            // console.log(e.target)
+            // obj.resize_gr.nodes([]);
+            // obj.group.draggable(false)
+        btn_draw_shape.style.display = 'none'
+        opt.style.display = 'none'
+        opt_note.style.display = 'none'
+        return;
+    }
+
+    if (e.target.parent.getClassName() === "Group") {
+        switch (e.target.parent.children[1].className) {
+            case "Text":
+                array_state_note.filter((fil, index) => {
+                    if (fil.note.attrs.name === e.target.parent.attrs.name) {
+                        console.log(fil)
+                        opt_note.style.display = 'initial'
+                        opt_note.style.top =
+                            e.target.parent.attrs.y + 75 + 'px';
+                        opt_note.style.left =
+                            e.target.parent.attrs.x + 410 + 'px';
+                        opt_note.addEventListener('click', () => {
+                            opt_note.style.display = 'none';
+                        })
+                        invalid_empty_rec.style.display = "none"
+                            // input_reciver.on('add', JSON.parse(fil.PartnerReciver).map((item) => {
+                            //     return item.value
+                            // }))
+                            // input_reciver.on('add', JSON.parse(fil.define).map((item) => {
+                            //     return item.value
+                            // }))
+                            // input_reciver.on('add', JSON.parse(fil.params.key).map((item) => {
+                            //     return item.value
+                            // }))
+
+                        input_reciver_test.addTags(fil.PartnerReciver)
+                        input_def_test.addTags(fil.define)
+                        input_params_test.addTags(fil.params.key)
+                            // input_def.add(fil.define)
+                            // input_params.add(fil.params.key)
+
+
+                        $('#submit_btn').on('click', (e) => {
+                            e.preventDefault()
+
+                            // ---------------------------------new ---------------------------------------------//
+                            var p = []
+                            let str_params = ""
+                            if (input_params_test.val().trim() != '') {
+                                var handle_text_note = jQuery.parseJSON(input_params_test.val())
+                                for (let i = 0; i < handle_text_note.length; i++) {
+                                    str_params += " P" + (index) + i.toString() + " = " + handle_text_note[i].value + "\n"
+                                    p.push(" P" + (index) + i.toString())
+                                }
+                            }
+                            // ---------------------------------------------------------------------------------//
+                            // array_state_note[index].params = { key: input_params.val(), value: str_params, label: p }
+                            // array_state_note[index].define = input_params.val()
+                            console.log(input_reciver_test.val())
+                            console.log(input_def_test.val())
+                            fil.PartnerReciver = input_reciver_test.val()
+                            fil.define = input_def_test.val()
+                            fil.params = { key: input_params_test.val(), value: str_params, label: p }
+                            console.log(array_state_note)
+                            opt_note.style.display = 'none';
+                            fil.note.children[1].text(fil.params.value)
+                            fil.lableArrow.text(fil.params.label)
+                            $('#staticBackdrop').modal('toggle')
+                            console.log(array_state_note)
+                        })
+
+
+                    }
+
+                })
+
+
+
+
+
+                // note_obj.note_group.on('click', (e) => {
+                //     console.log("note ", e)
+                //     opt_note.style.display = 'initial';
+                //     // if (!NotEmpty(obj_group)) {
+                //     opt_note.style.top =
+                //         e.target.parent.attrs.y + 75 + 'px';
+                //     opt_note.style.left =
+                //         e.target.parent.attrs.x + 410 + 'px';
+                //     opt_note.addEventListener('click', () => {
+                //         opt_note.style.display = 'none';
+                //     })
+                //     var index_note = 0
+                //     array_state_note.filter((st, i) => {
+                //             if (st.note_name === e.target.parent.attrs.name) {
+                //                 // console.log("if ======> ", i)
+                //                 input_def_note.val(st.define)
+                //                 input_params_note.val(st.params.key)
+                //                 index_note = i
+
+                //             }
+                //         })
+                //         // console.log("2 =>", array_state_note)
+                //     $('#submit_btn_note').on('click', () => {
+
+                //         // let PTNP = params_to_note_parser(input_params_note, index_note)
+                //         console.log("event => ", input_params_note.val())
+                //             // console.log(input_def_note.val())
+                //             // array_state_note.filter((st, idx) => {
+                //             //     if (st.note_name === e.target.parent.attrs.name) {
+
+                //         // if (input_def_note.val() != '') {
+                //         //     st.define = jQuery.parseJSON(input_def_note.val())
+                //         //     st.define.forEach(def => {
+                //         //         if (def.value.includes("=")) {
+                //         //             let split_mosavi = def.value.split("=")
+                //         //             macro_list.push({
+                //         //                 name: split_mosavi[0].trim(),
+                //         //                 value: split_mosavi[1].trim()
+                //         //             })
+                //         //         }
+                //         //         // console.log("object obj_partner.define > ", macro_list)
+                //         //     })
+                //         //     st.define = input_def_note.val()
+
+                //         // }
+
+
+                //         // ---------------------------------new ---------------------------------------------//
+                //         // var params_arr = []
+                //         var p = []
+                //         var str_params = ''
+                //         if (input_params_note.val().trim() != '') {
+                //             // var length_params = jQuery.parseJSON(input_params_note.val()).length
+                //             // var handle_text_note = input_params.val()
+                //             var handle_text_note = jQuery.parseJSON(input_params_note.val())
+
+                //             for (var i = 0; i < handle_text_note.length; i++) {
+                //                 // params_arr.push(handle_text_note[i])
+                //                 str_params += " P" + (index_note) + i.toString() + " = " + handle_text_note[i].value + "\n"
+                //                 p.push(" P" + (index_note) + i.toString())
+                //             }
+                //         }
+                //         // ---------------------------------------------------------------------------------//
+
+
+
+                //         // st.define = jQuery.parseJSON(input_def_note.val())
+                //         array_state_note[index_note].params = { key: input_params_note.val(), value: str_params, label: p }
+                //         array_state_note[index_note].define = input_def_note.val()
+                //             // e.target.parent.children[1].attrs.text = jQuery.parseJSON(input_def_note.val()).map(function(elem) {
+                //             //         return elem.value;
+                //             //     }).join(",") + "\n" + st.params.value
+
+                //         note_obj.text_note.text(jQuery.parseJSON(input_def_note.val()).map(function(elem) {
+                //             return elem.value;
+                //         }).join(",") + "\n" + array_state_note[index_note].params.value)
+                //         note_obj.base_node.height(note_obj.text_note.height())
+                //         lableArrow.text(array_state_note[index_note].params.label)
+                //             // console.log(e.target.parent.children[1].attrs.text)
+                //         opt_note.style.display = 'none';
+                //         $('#note_modal').modal('toggle')
+
+                //         // }
+
+
+
+                //         // })
+
+                //         console.log("1 =>", array_state_note)
+                //     })
+                // })
+        }
+
+    }
+
+    // if (e.target) {
+
+    // }
+
+    // target = e.target.parent
+    // tr_target = obj.resize_gr
+    // if (obj.group) {
+    //     console.log(obj)
+    //         // obj.resize_gr.nodes([e.target.parent]);
+    // }
+})
+
+// stage.on('click', function(e) {
+//     // e.target is a clicked Konva.Shape or current stage if you clicked on empty space
+//     // if (e.target.className === "Note")
+//     console.log('note', e.target.parent);
+//     // console.log(
+//     //     'usual click on ' + JSON.stringify(stage.getPointerPosition())
+//     // );
+// });
+
+
+
+
+
+
+
+
+
+//-------------------------------------------------------------------------------------------//
 function toolbox_manager(type) {
     switch (type) {
         case 'rect':
@@ -2771,3 +2503,100 @@ function selectValuesInParentheses(str) {
     var match = str.match(/\(([^)]+)\)/);
     return match ? match[1] : '';
 }
+
+
+// var btn_run = document.getElementById('btn_run')
+
+// btn_run.addEventListener('click', () => {
+//     console.log("object")
+//     document.getElementById('console').value = 'test'
+// })
+
+
+
+// var function_array = []
+// var nonce_array = []
+// var tmp_func_content
+// var split_array
+// var i = 0
+
+// function is_function(str){
+//   return str.includes("(") || str.includes(")")
+// }
+
+// function func_content(func){
+//   var obj_function = {}
+//   var function_name
+//   var counter = 0
+//   var first_parantez = 0
+//   var end_parantez = 0
+//   for(var i=0;i<func.length; i++){
+//     var c = func[i]
+//     if(c == "("){
+//       if(counter == 0) {
+//         function_name = func.slice(0,i).trim()
+//         first_parantez = i+1
+//       }
+//       counter++
+//     }
+//     if(c == ")"){
+//       counter--
+//       if(counter == 0) 
+//         end_parantez = i
+//     }
+//   }
+//   //return func.substring(first_parantez,end_parantez)
+//   var cont = func.substring(first_parantez,end_parantez)
+//   obj_function.name = function_name.replace(',','')
+//   obj_function.content = splite_content(cont)
+//   return obj_function
+// }
+
+// function splite_content(content){
+//   var split_array = []
+//   var split_array_tmp = []
+//   var counter = 0
+//   var index = 0
+//   //var end_parantez = 0
+//   for(var i=0;i<content.length; i++){
+//     var c = content[i]
+//     if(counter == 0 & c == ","){
+//       split_array.push(content.substring(index,i))
+//       index = i
+//     }
+
+//     if(c == "("){
+//       counter++
+//     }
+//     if(c == ")"){
+//       counter--
+//     }
+//   }
+//   split_array.push(content.substring(index,content.length))
+//   return split_array
+// }
+
+// function splite_string(str){
+
+//     // split_array = splite_content(str)
+
+//   // console.log(split_array)
+//   str.forEach((sp)=>{
+//     // sp = sp.replace(',','')
+//     if(is_function(sp)){
+//         tmp_func_content = func_content(sp)
+//         // function_array[i] = func_content(sp)
+//         // i=i+1
+//         function_array.push(func_content(sp))
+//         // console.log("====> ", i)
+//         splite_string(func_content(sp).content)
+
+//     }else{
+//       nonce_array.push(sp.replace(',',''))
+//     }
+
+//   })
+
+// }
+// splite_string(splite_content("f(a,b,h(c)),g(a,b),h(d,n,m(s))"))
+// console.log(function_array, "\n"+ nonce_array )
